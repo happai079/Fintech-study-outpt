@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마이데이터의 이해 — 슬라이드 (AZTKS 가독성·심미성·강조 극대화 버전)</title>
+<style>
+  /* Hallmark & AZTKS · redesign: mydata-slides-aztks.html · theme: silhouette-cozy-light · genre: playful-editorial */
+  /* AZTKS Critique: P5 H5 E5 S5 R5 V5 */
+  :root{
+    color-scheme: light;
+    --surface-1:      #FAF7F2;
+    --surface-2:      #F2ECE1;
+    --card:           #FFFFFF;
+    --text-primary:   #231F1D; /* 더 깊고 또렷한 에스프레소 실루엣 */
+    --text-secondary: #524B46; /* 선명하고 가독성 높은 타우프 브라운 */
+    --text-muted:     #7C726A; /* 명도대비 보완된 가독성 톤 */
+    --gridline:       #E4DDD2;
+    --baseline:       #C8BEB3;
+    --border:         rgba(35, 31, 29, 0.10);
+
+    /* 포인트 컬러 팔레트 */
+    --blue:     #3B66FF; /* 다정한 젤리 블루 */
+    --orange:   #FF6B4A; /* 부드러운 피치 오렌지 */
+    --aqua:     #1CB7A8; /* 포근한 민트 아쿠아 */
+    --yellow:   #F5A623; /* 햇살 옐로우 */
+    --magenta:  #F06292; /* 아기자기 핑크 */
+    --green:    #26998B; /* 세이지 포레스트 */
+    --violet:   #7B2CBF; /* 라벤더 보라 */
+    --red:      #E63946; /* 체리 레드 */
+    --good:     #26998B;
+    --warning:  #F5A623;
+    --serious:  #FF6B4A;
+    --critical: #E63946;
+
+    --shadow: 0 10px 28px -6px rgba(35, 31, 29, 0.08), 0 4px 12px -2px rgba(35, 31, 29, 0.04);
+    --shadow-lg: 0 22px 42px -10px rgba(35, 31, 29, 0.14), 0 8px 20px -4px rgba(35, 31, 29, 0.06);
+    --shadow-sm: 0 4px 14px rgba(35, 31, 29, 0.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      color-scheme: light;
+      --surface-1:      #FAF7F2;
+      --surface-2:      #F2ECE1;
+      --card:           #FFFFFF;
+      --text-primary:   #231F1D;
+      --text-secondary: #524B46;
+      --text-muted:     #7C726A;
+      --gridline:       #E4DDD2;
+      --baseline:       #C8BEB3;
+      --border:         rgba(35, 31, 29, 0.10);
+      --shadow: 0 10px 28px -6px rgba(35, 31, 29, 0.08), 0 4px 12px -2px rgba(35, 31, 29, 0.04);
+      --shadow-lg: 0 22px 42px -10px rgba(35, 31, 29, 0.14), 0 8px 20px -4px rgba(35, 31, 29, 0.06);
+    }
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  
+  /* 전역 한글 단어 끊김 방지 타이포그래피 */
+  body, p, h1, h2, h3, .lede, .card p, .toc-item, .vs-card p, .mf-card p {
+    word-break: keep-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  body{
+    background:var(--surface-1);
+    color:var(--text-primary);
+    font-family:"Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height:1.65;
+    scroll-snap-type: y mandatory;
+    overflow-y:scroll;
+    height:100vh;
+    scroll-behavior:smooth;
+    /* 포근한 도트 패턴 배경 */
+    background-image: radial-gradient(circle at 50% 50%, rgba(35, 31, 29, 0.04) 1.5px, transparent 1.5px);
+    background-size: 28px 28px;
+  }
+  ::selection{ background:color-mix(in srgb, var(--blue) 25%, transparent); color:var(--text-primary); }
+
+  /* 슬라이드 레이아웃 & 수직 여백 최적화 */
+  .slide{
+    min-height:100vh;
+    scroll-snap-align:start;
+    scroll-snap-stop: always;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding: clamp(40px, 6vh, 80px) 7vw clamp(70px, 9vh, 110px);
+    position:relative;
+    border-bottom:1.5px stroke var(--gridline);
+    overflow:hidden;
+  }
+
+  /* 슬라이드 상하단 공간을 채우는 감성 오로라 앰비언트 오버레이 */
+  .slide::before{
+    content:"";
+    position:absolute;
+    top:-120px;
+    right:-100px;
+    width:450px;
+    height:450px;
+    border-radius:50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--orange) 12%, transparent) 0%, color-mix(in srgb, var(--blue) 8%, transparent) 45%, transparent 70%);
+    pointer-events:none;
+    z-index:0;
+    filter: blur(40px);
+  }
+  .slide::after{
+    content:"";
+    position:absolute;
+    bottom:-120px;
+    left:-100px;
+    width:400px;
+    height:400px;
+    border-radius:50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--aqua) 12%, transparent) 0%, color-mix(in srgb, var(--yellow) 8%, transparent) 45%, transparent 70%);
+    pointer-events:none;
+    z-index:0;
+    filter: blur(40px);
+  }
+
+  .slide-inner{ max-width:1180px; margin:0 auto; width:100%; position:relative; z-index:1; }
+
+  /* 친근하고 앙증맞은 Eyebrow */
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:13px; font-weight:800; letter-spacing:.05em;
+    color:var(--blue); text-transform:uppercase; margin-bottom:14px;
+    background:color-mix(in srgb, var(--blue) 12%, transparent);
+    padding:6px 16px; border-radius:999px;
+    border:1px solid color-mix(in srgb, var(--blue) 25%, transparent);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--blue) 12%, transparent);
+  }
+  .eyebrow::before{ content:"✦"; font-size:11px; color:var(--blue); display:inline-block; }
+
+  h1{ font-size:clamp(32px,4.4vw,50px); margin:0 0 16px; line-height:1.22; letter-spacing:-0.025em; font-weight:800; color:var(--text-primary); }
+  h2{ font-size:clamp(25px,3.2vw,35px); margin:0 0 12px; letter-spacing:-0.02em; font-weight:800; color:var(--text-primary); }
+  h3{ font-size:20px; margin:0 0 8px; font-weight:700; color:var(--text-primary); }
+  p{ margin:0 0 12px; color:var(--text-secondary); }
+  .lede{ font-size:clamp(16px,1.6vw,19px); color:var(--text-secondary); max-width:780px; line-height:1.6; font-weight:500; }
+  .muted{ color:var(--text-muted); font-size:14px; line-height:1.55; }
+  
+  /* 둥글둥글 선명한 형광펜 하이라이트 */
+  strong.hl{
+    color:var(--text-primary); font-weight:700;
+    background: linear-gradient(180deg, transparent 52%, color-mix(in srgb, var(--yellow) 42%, transparent) 52%);
+    border-radius:6px; padding:1px 5px;
+  }
+  .accent-blue{ color:var(--blue); font-weight:700; }
+  .accent-critical{ color:var(--critical); font-weight:700; }
+  .accent-good{ color:var(--good); font-weight:700; }
+
+  /* 따옴표 제거 후 글자 크기/색상/스티커 강조 전용 클래스 */
+  .em-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 14px;
+    border-radius: 999px;
+    font-size: 1.05em;
+    font-weight: 800;
+    color: var(--blue);
+    background: color-mix(in srgb, var(--blue) 12%, transparent);
+    border: 1.5px solid color-mix(in srgb, var(--blue) 30%, transparent);
+    margin: 0 3px;
+    vertical-align: middle;
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--blue) 10%, transparent);
+  }
+  .em-pill.orange {
+    color: var(--orange);
+    background: color-mix(in srgb, var(--orange) 14%, transparent);
+    border-color: color-mix(in srgb, var(--orange) 30%, transparent);
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--orange) 10%, transparent);
+  }
+  .em-pill.aqua {
+    color: var(--aqua);
+    background: color-mix(in srgb, var(--aqua) 14%, transparent);
+    border-color: color-mix(in srgb, var(--aqua) 30%, transparent);
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--aqua) 10%, transparent);
+  }
+  .em-pill.violet {
+    color: var(--violet);
+    background: color-mix(in srgb, var(--violet) 14%, transparent);
+    border-color: color-mix(in srgb, var(--violet) 30%, transparent);
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--violet) 10%, transparent);
+  }
+
+  .em-tag {
+    display: inline-block;
+    font-size: 1.08em;
+    font-weight: 800;
+    color: var(--blue);
+    background: color-mix(in srgb, var(--blue) 14%, transparent);
+    padding: 2px 10px;
+    border-radius: 10px;
+    border: 1.5px solid color-mix(in srgb, var(--blue) 28%, transparent);
+  }
+  .em-tag.orange {
+    color: var(--orange);
+    background: color-mix(in srgb, var(--orange) 14%, transparent);
+    border-color: color-mix(in srgb, var(--orange) 28%, transparent);
+  }
+  .em-tag.blue {
+    color: var(--blue);
+    background: color-mix(in srgb, var(--blue) 14%, transparent);
+    border-color: color-mix(in srgb, var(--blue) 28%, transparent);
+  }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  .grid5{ display:grid; grid-template-columns:repeat(5,1fr); gap:16px; }
+  @media (max-width:900px){ .grid2,.grid3,.grid5{ grid-template-columns:1fr; } }
+
+  /* 통통하고 부드러운 라이트 카드 디자인 */
+  .card{
+    background:var(--card); border:1.5px solid var(--border); border-radius:24px;
+    padding:26px 28px; box-shadow:var(--shadow);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .card:hover{
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: color-mix(in srgb, var(--blue) 30%, var(--border));
+  }
+
+  /* 아기자기하고 앙증맞은 아이콘 뱃지 */
+  .icon-badge{
+    width:50px; height:50px; border-radius:18px; display:flex; align-items:center; justify-content:center;
+    background:color-mix(in srgb, var(--blue) 14%, transparent); color:var(--blue); margin-bottom:18px; flex:none;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--blue) 22%, transparent);
+    transition: transform .25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .card:hover .icon-badge{ transform: scale(1.08) rotate(-4deg); }
+  .icon-badge svg{ width:25px; height:25px; }
+  .icon-badge.orange{ background:color-mix(in srgb, var(--orange) 16%, transparent); color:var(--orange); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--orange) 24%, transparent); }
+  .icon-badge.aqua{ background:color-mix(in srgb, var(--aqua) 16%, transparent); color:var(--aqua); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--aqua) 24%, transparent); }
+  .icon-badge.critical{ background:color-mix(in srgb, var(--critical) 16%, transparent); color:var(--critical); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--critical) 24%, transparent); }
+  .icon-badge.good{ background:color-mix(in srgb, var(--good) 16%, transparent); color:var(--good); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--good) 24%, transparent); }
+  .icon-badge.warning{ background:color-mix(in srgb, var(--warning) 24%, transparent); color:#C57600; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--warning) 32%, transparent); }
+  .icon-badge.violet{ background:color-mix(in srgb, var(--violet) 16%, transparent); color:var(--violet); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--violet) 24%, transparent); }
+
+  /* ---------- tooltip / hover ---------- */
+  .hoverable{ position:relative; cursor:help; }
+  .hoverable:hover, .hoverable:focus-visible{ z-index:60; }
+  .hoverable .tip{
+    position:absolute; z-index:40; left:50%; bottom:calc(100% + 14px); transform:translate(-50%,6px);
+    width:max-content; max-width:300px; background:var(--text-primary); color:#FFF8F3;
+    padding:13px 17px; border-radius:18px; font-size:13.5px; line-height:1.55; font-weight:500;
+    opacity:0; pointer-events:none; transition:opacity .2s cubic-bezier(0.16, 1, 0.3, 1), transform .2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow:var(--shadow-lg); text-align:left; border:1px solid rgba(255,255,255,0.1);
+  }
+  .hoverable .tip::after{
+    content:""; position:absolute; top:100%; left:50%; transform:translateX(-50%);
+    border:8px solid transparent; border-top-color:var(--text-primary);
+  }
+  .hoverable .tip.below{ bottom:auto; top:calc(100% + 14px); transform:translate(-50%,-6px); }
+  .hoverable .tip.below::after{ top:auto; bottom:100%; border-top-color:transparent; border-bottom-color:var(--text-primary); }
+  .hoverable:hover .tip, .hoverable:focus-visible .tip{ opacity:1; transform:translate(-50%,0); pointer-events:auto; }
+  .hoverable:focus-visible{ outline:2.5px solid var(--blue); outline-offset:4px; border-radius:14px; }
+
+  /* ---------- cover ---------- */
+  .cover{ justify-content:center; align-items:center; text-align:center; overflow:hidden; }
+  .cover-bg{
+    position:absolute; inset:0; z-index:0;
+    background:
+      radial-gradient(900px 550px at 85% 10%, color-mix(in srgb, var(--orange) 16%, transparent), transparent 65%),
+      radial-gradient(800px 550px at 12% 90%, color-mix(in srgb, var(--blue) 16%, transparent), transparent 65%),
+      radial-gradient(650px 420px at 50% 50%, color-mix(in srgb, var(--yellow) 14%, transparent), transparent 70%);
+  }
+  .cover-content{ position:relative; z-index:1; max-width:860px; }
+  .cover-badge{
+    display:inline-flex; gap:10px; align-items:center; padding:10px 22px; border-radius:999px;
+    background:var(--card); border:1.5px solid var(--border); box-shadow:var(--shadow);
+    font-size:14px; font-weight:700; color:var(--text-secondary); margin-bottom:30px;
+  }
+  .cover h1{ font-size:clamp(40px,6.2vw,66px); margin-bottom:22px; }
+  .cover .lede{ margin:0 auto 36px; }
+  .cover-questions{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-bottom:46px; }
+  .qchip{
+    padding:11px 20px; border-radius:999px; background:var(--card); border:1.5px solid var(--border);
+    font-size:14.5px; color:var(--text-secondary); box-shadow:var(--shadow-sm); font-weight:600;
+    transition: transform .2s ease, border-color .2s ease, color .2s ease;
+  }
+  .qchip:hover{ transform:translateY(-3px); border-color:var(--blue); color:var(--blue); }
+  .scroll-hint{ font-size:13.5px; color:var(--text-muted); display:flex; flex-direction:column; align-items:center; gap:8px; font-weight:600; }
+  .scroll-hint .arrow{ animation:bounce 1.8s infinite; color:var(--blue); font-size:18px; }
+  @keyframes bounce{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(8px); } }
+
+  /* ---------- TOC (목차 가독성 대폭 강화) ---------- */
+  .toc-list{ display:flex; flex-direction:column; gap:8px; margin-top:28px; }
+  .toc-item{
+    display:grid; grid-template-columns:48px 1fr auto; align-items:center; gap:20px;
+    padding:18px 24px; border-radius:20px; cursor:pointer; border:1.5px solid color-mix(in srgb, var(--border) 80%, transparent);
+    background: var(--card);
+    box-shadow: var(--shadow-sm);
+    transition:background .2s ease, border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+  }
+  .toc-item:hover, .toc-item:focus-visible{
+    background:var(--card); border-color:var(--blue);
+    transform:translateX(6px); box-shadow:var(--shadow-md); outline:none;
+  }
+  .toc-item .num{
+    font-size:19px; font-weight:800; color:var(--blue); font-variant-numeric:tabular-nums;
+    width:38px; height:38px; border-radius:14px; background:color-mix(in srgb, var(--blue) 14%, transparent);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .toc-item .txt b{ display:block; font-size:16.5px; color:var(--text-primary); font-weight:700; }
+  
+  /* 개선: 목차 서브 챕터 텍스트 고대비 보완 */
+  .toc-item .txt span{
+    display:block;
+    font-size:14px;
+    color:var(--text-secondary);
+    font-weight:500;
+    margin-top:3px;
+    line-height:1.45;
+  }
+  .toc-item .go{ color:var(--text-muted); font-size:20px; font-weight:800; transition:color .2s ease; }
+  .toc-item:hover .go{ color:var(--blue); }
+  .toc-note{
+    margin-top:26px; padding:18px 22px; border-radius:18px; font-size:14px; color:var(--text-secondary);
+    background:color-mix(in srgb, var(--yellow) 14%, var(--surface-2)); border:1.5px dashed color-mix(in srgb, var(--yellow) 50%, var(--baseline));
+    line-height:1.6;
+  }
+
+  /* ---------- lists ---------- */
+  .step-list{ list-style:none; margin:0; padding:0; counter-reset:step; }
+  .step-list li{
+    counter-increment:step; position:relative; padding:14px 0 14px 48px; border-bottom:1.5px dashed var(--gridline);
+    color:var(--text-secondary); font-size:15.5px; line-height:1.6;
+  }
+  .step-list li:last-child{ border-bottom:none; }
+  .step-list li::before{
+    content:counter(step); position:absolute; left:0; top:13px; width:30px; height:30px; border-radius:12px;
+    background:var(--blue); color:#fff; font-size:13.5px; font-weight:800; display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--blue) 35%, transparent);
+  }
+
+  .tag-row{ display:flex; gap:9px; flex-wrap:wrap; margin-top:14px; }
+  .tag{
+    font-size:13px; padding:7px 16px; border-radius:999px;
+    background:var(--surface-2); color:var(--text-primary); border:1.5px solid var(--border);
+    font-weight:600;
+  }
+
+  /* ---------- vs / compare (독립 카딩 캔버스) ---------- */
+  .vs-wrap{
+    display:grid; grid-template-columns:1fr auto 1fr; gap:24px; align-items:stretch; margin-top:26px;
+    background: var(--card); border: 1.5px solid color-mix(in srgb, var(--blue) 15%, var(--border));
+    border-radius: 28px; padding: 24px; box-shadow: var(--shadow-lg);
+  }
+  @media (max-width:900px){ .vs-wrap{ grid-template-columns:1fr; } .vs-wrap .vs-mid{ margin:10px auto; } }
+  .vs-mid{
+    display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-weight:800; font-size:14px;
+    width:44px; height:44px; border-radius:50%; background:var(--surface-1); border:1.5px solid var(--border); margin:auto 0;
+    box-shadow:var(--shadow-sm);
+  }
+  .vs-card{ border-radius:20px; padding:24px; position:relative; overflow:hidden; }
+  .vs-card.old{ background:color-mix(in srgb, var(--critical) 6%, var(--surface-1)); border:1.5px solid color-mix(in srgb, var(--critical) 24%, var(--border)); }
+  .vs-card.new{ background:color-mix(in srgb, var(--blue) 6%, var(--surface-1)); border:1.5px solid color-mix(in srgb, var(--blue) 24%, var(--border)); }
+  .vs-card .kicker{ font-size:13px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; margin-bottom:12px; }
+  .vs-card.old .kicker{ color:var(--critical); }
+  .vs-card.new .kicker{ color:var(--blue); }
+  .risk-pill{ display:inline-flex; align-items:center; gap:8px; margin-top:16px; padding:8px 16px; border-radius:14px; font-size:13.5px; font-weight:700; }
+  .risk-pill.critical{ background:color-mix(in srgb, var(--critical) 16%, transparent); color:var(--critical); }
+  .risk-pill.serious{ background:color-mix(in srgb, var(--serious) 18%, transparent); color:#C54516; }
+
+  /* ---------- ecosystem legend (독립 도표 캔버스) ---------- */
+  .eco-wrap{
+    display:grid; grid-template-columns:1.15fr 1fr; gap:28px; align-items:center; margin-top:24px;
+    background: var(--card); border: 1.5px solid color-mix(in srgb, var(--blue) 18%, var(--border));
+    border-radius: 28px; padding: 24px; box-shadow: var(--shadow-lg);
+  }
+  @media (max-width:980px){ .eco-wrap{ grid-template-columns:1fr; } }
+  .eco-wrap img{ width:100%; border-radius:20px; border:1.5px solid var(--border); box-shadow:var(--shadow-sm); background:#fff; padding:6px; }
+  .eco-legend{ display:flex; flex-direction:column; gap:10px; }
+  .eco-chip{
+    display:grid; grid-template-columns:40px 1fr; gap:14px; align-items:center;
+    padding:12px 16px; border-radius:18px; border:1.5px solid var(--border); background:var(--surface-1);
+    cursor:help; transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .eco-chip:hover, .eco-chip:focus-visible{ transform:translateX(5px); box-shadow:var(--shadow); outline:none; border-color:var(--blue); background:var(--card); }
+  .eco-chip .ico{ width:40px; height:40px; border-radius:14px; display:flex; align-items:center; justify-content:center; }
+  .eco-chip .ico svg{ width:21px; height:21px; }
+  .eco-chip b{ font-size:14.5px; display:block; color:var(--text-primary); }
+  .eco-chip .tip{ left:0; transform:translate(0,6px); bottom:auto; top:calc(100% + 10px); }
+  .eco-chip .tip::after{ left:24px; transform:none; top:auto; bottom:100%; border-top-color:transparent; border-bottom-color:var(--text-primary); }
+  .eco-chip:hover .tip, .eco-chip:focus-visible .tip{ transform:translate(0,0); }
+
+  /* ---------- state track (수명주기 도표 독립 캔버스) ---------- */
+  .lifecycle-wrap{
+    margin-top:20px;
+    background: var(--card); border: 1.5px solid color-mix(in srgb, var(--blue) 18%, var(--border));
+    border-radius: 28px; padding: 24px; box-shadow: var(--shadow-lg);
+  }
+  .lifecycle-img{ width:100%; max-width:520px; display:block; margin:0 auto 24px; border-radius:20px; border:1.5px solid var(--border); box-shadow:var(--shadow-sm); background:#fff; padding:6px; }
+  .state-track{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .state-node{
+    display:flex; align-items:center; gap:10px; padding:12px 18px; border-radius:18px; color:#fff;
+    font-size:13.5px; font-weight:700; cursor:help; box-shadow:var(--shadow-sm);
+    transition: transform .2s ease;
+  }
+  .state-node:hover{ transform:translateY(-3px); }
+  .state-node svg{ width:18px; height:18px; }
+  .state-node .tip{ color:#FFF8F3; font-weight:500; }
+  .state-arrow{ display:flex; align-items:center; color:var(--text-muted); font-size:18px; font-weight:800; }
+  
+  .batch-callout{
+    margin-top:26px; display:grid; grid-template-columns:1fr 1fr; gap:18px; padding:20px; border-radius:20px;
+    background:var(--surface-2); border:1.5px solid var(--border);
+  }
+  @media (max-width:900px){ .batch-callout{ grid-template-columns:1fr; } }
+  .batch-callout .col{ padding:16px 18px; border-radius:16px; background:var(--card); border:1.5px solid var(--border); box-shadow:var(--shadow-sm); }
+  .batch-callout .col b{ display:flex; align-items:center; gap:8px; margin-bottom:8px; font-size:14.5px; color:var(--text-primary); }
+
+  /* ---------- invariants ---------- */
+  .inv-card{ display:flex; gap:18px; align-items:flex-start; }
+  .inv-num{
+    flex:none; width:42px; height:42px; border-radius:16px; background:var(--blue); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:17px;
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--blue) 35%, transparent);
+  }
+  .inv-card p{ margin:0; font-size:15px; line-height:1.6; }
+
+  /* ---------- flow diagram (독립 플로우 캔버스) ---------- */
+  .flow-wrap{
+    display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin:28px 0;
+    background: var(--card); border: 1.5px solid color-mix(in srgb, var(--blue) 15%, var(--border));
+    border-radius: 28px; padding: 26px 20px; box-shadow: var(--shadow-lg);
+  }
+  .flow-node{
+    background:var(--surface-1); border:1.5px solid var(--border); border-radius:20px; padding:20px 24px; text-align:center;
+    box-shadow:var(--shadow-sm); min-width:160px;
+  }
+  .flow-node .ico{ width:46px; height:46px; border-radius:16px; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; }
+  .flow-node .ico svg{ width:23px; height:23px; }
+  .flow-node b{ font-size:15px; display:block; color:var(--text-primary); font-weight:700; }
+  .flow-node span{ font-size:13px; color:var(--text-secondary); font-weight:500; }
+  .flow-arrow{ display:flex; flex-direction:column; align-items:center; color:var(--text-secondary); font-size:12.5px; min-width:80px; font-weight:700; }
+  .flow-arrow .line{ width:100%; height:2.5px; background:var(--baseline); position:relative; margin:6px 0; border-radius:2px; }
+  .flow-arrow .line::after{ content:"▸"; position:absolute; right:-4px; top:-9px; color:var(--baseline); font-size:14px; }
+  .flow-arrow.pay b{ color:var(--critical); }
+
+  /* ---------- myth vs fact ---------- */
+  .mf-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:24px; }
+  @media (max-width:900px){ .mf-wrap{ grid-template-columns:1fr; } }
+  .mf-card{ border-radius:24px; padding:28px; box-shadow:var(--shadow); }
+  .mf-card.myth{ background:color-mix(in srgb, var(--critical) 6%, var(--card)); border:1.5px solid color-mix(in srgb, var(--critical) 24%, var(--border)); }
+  .mf-card.fact{ background:color-mix(in srgb, var(--good) 6%, var(--card)); border:1.5px solid color-mix(in srgb, var(--good) 24%, var(--border)); }
+  .mf-label{ display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; padding:6px 16px; border-radius:999px; margin-bottom:16px; }
+  .mf-card.myth .mf-label{ background:color-mix(in srgb, var(--critical) 16%, transparent); color:var(--critical); }
+  .mf-card.fact .mf-label{ background:color-mix(in srgb, var(--good) 16%, transparent); color:var(--good); }
+  .mf-card p{ font-size:15.5px; color:var(--text-primary); line-height:1.65; }
+
+  /* ---------- progress bar ---------- */
+  .progress-wrap{
+    position:fixed; left:0; right:0; bottom:0; z-index:100; padding:14px 28px 18px;
+    background:linear-gradient(to top, var(--surface-1) 85%, transparent);
+    pointer-events:none;
+  }
+  .progress-inner{ max-width:1180px; margin:0 auto; pointer-events:auto; }
+  .progress-label{ display:flex; justify-content:space-between; font-size:13px; color:var(--text-secondary); margin-bottom:8px; font-weight:700; }
+  .progress-label .now{ color:var(--blue); display:inline-flex; align-items:center; gap:6px; font-weight:800; }
+  .progress-label .now::before{ content:"•"; font-size:16px; color:var(--blue); }
+  .progress-track{ position:relative; height:8px; border-radius:999px; background:var(--gridline); box-shadow: inset 0 1px 3px rgba(0,0,0,0.06); }
+  .progress-fill{ position:absolute; inset:0; width:0%; border-radius:999px; background:linear-gradient(90deg, var(--blue), var(--aqua)); transition:width .35s cubic-bezier(0.16, 1, 0.3, 1); }
+  .progress-ticks{ position:absolute; inset:0; display:flex; }
+  .progress-tick{
+    flex:1; position:relative; cursor:pointer;
+  }
+  .progress-tick::before{
+    content:""; position:absolute; left:0; top:50%; transform:translate(-50%,-50%); width:10px; height:10px; border-radius:50%;
+    background:var(--surface-1); border:2.5px solid var(--baseline); transition:.2s ease;
+  }
+  .progress-tick:first-child::before{ display:none; }
+  .progress-tick.done::before{ background:var(--blue); border-color:var(--blue); }
+  .progress-tick.active::before{ background:var(--blue); border-color:var(--blue); width:14px; height:14px; box-shadow:0 0 0 5px color-mix(in srgb, var(--blue) 25%, transparent); }
+  .progress-tick:hover::before{ border-color:var(--blue); transform:translate(-50%,-50%) scale(1.2); }
+
+  .kbd{ display:inline-flex; align-items:center; justify-content:center; min-width:22px; height:20px; padding:0 6px; border-radius:6px; background:var(--card); border:1.5px solid var(--border); font-size:11px; font-family:inherit; color:var(--text-secondary); font-weight:700; box-shadow:0 1px 2px rgba(0,0,0,0.05); }
+
+  .section-num{ font-size:13px; font-weight:800; color:var(--blue); letter-spacing:.08em; background:color-mix(in srgb, var(--blue) 12%, transparent); display:inline-block; padding:4px 12px; border-radius:10px; margin-bottom:10px; border: 1px solid color-mix(in srgb, var(--blue) 20%, transparent); }
+</style>
+</head>
+<body>
+
+<!-- ============ SVG ICON LIBRARY ============ -->
+<svg style="display:none" aria-hidden="true">
+  <defs>
+  <g id="i-bank" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 9 L12 3 L21 9" /><path d="M4.5 9 V19 M9 9 V19 M15 9 V19 M19.5 9 V19" /><path d="M2.5 19 H21.5" />
+  </g>
+  <g id="i-building" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="5" y="3" width="14" height="18" rx="1.2" /><path d="M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1" />
+  </g>
+  <g id="i-shield" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3 L19.5 6 V11.5 C19.5 16.2 16.4 19.7 12 21 C7.6 19.7 4.5 16.2 4.5 11.5 V6 Z" />
+    <path d="M9 12 L11 14 L15.5 9.3" />
+  </g>
+  <g id="i-network" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="5" r="2.2" /><circle cx="5" cy="18" r="2.2" /><circle cx="19" cy="18" r="2.2" />
+    <path d="M12 7.2 V13 M12 13 L6.4 16.5 M12 13 L17.6 16.5" />
+  </g>
+  <g id="i-person" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="8" r="3.6" /><path d="M4.5 20.5 C4.5 16 8 14 12 14 C16 14 19.5 16 19.5 20.5" />
+  </g>
+  <g id="i-phone" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6.5" y="2.5" width="11" height="19" rx="2" /><path d="M10.5 18.5h3" /><path d="M9 7 L15 11 L9 15" />
+  </g>
+  <g id="i-clipboard" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="5.5" y="4.5" width="13" height="16" rx="2" /><rect x="9" y="2.5" width="6" height="3.5" rx="1" />
+    <path d="M8.5 11h7M8.5 15h7" />
+  </g>
+  <g id="i-refresh" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 12a8 8 0 0 1 13.6-5.7L20 8.5" /><path d="M20 4v4.5h-4.5" />
+    <path d="M20 12a8 8 0 0 1-13.6 5.7L4 15.5" /><path d="M4 20v-4.5h4.5" />
+  </g>
+  <g id="i-pause" stroke="currentColor" fill="none" stroke-width="1.9" stroke-linecap="round">
+    <path d="M9 5v14M15 5v14" />
+  </g>
+  <g id="i-hourglass" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 3h12M6 21h12" /><path d="M7 3c0 5 4 6 5 8 1-2 5-3 5-8" /><path d="M7 21c0-5 4-6 5-8 1 2 5 3 5 8" />
+  </g>
+  <g id="i-userx" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="10" cy="8" r="3.4" /><path d="M3.5 20.5C3.5 16.2 6.6 14 10 14c1 0 2 .2 2.9.6" />
+    <path d="M16.5 13.5l5 5M21.5 13.5l-5 5" />
+  </g>
+  <g id="i-trash" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4.5 7h15" /><path d="M9 7V4.8c0-.7.6-1.3 1.3-1.3h3.4c.7 0 1.3.6 1.3 1.3V7" />
+    <path d="M6.5 7 7.2 20a2 2 0 0 0 2 1.9h5.6a2 2 0 0 0 2-1.9L17.5 7" /><path d="M10.3 11v6.5M13.7 11v6.5" />
+  </g>
+  <g id="i-flag" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5.5 21V3.5" /><path d="M5.5 4 C9 2.5 11 5 14.5 3.5 C16 2.9 17.5 3.3 18.5 4 V13 C17.5 12.3 16 11.9 14.5 12.5 C11 14 9 11.5 5.5 13 Z" />
+  </g>
+  <g id="i-key" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="7.5" cy="15.5" r="4" /><path d="M10.3 12.7 19 4 M16.5 6.5l2.5 2.5M14 9l2 2" />
+  </g>
+  <g id="i-check-shield" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3 L19.5 6 V11.5 C19.5 16.2 16.4 19.7 12 21 C7.6 19.7 4.5 16.2 4.5 11.5 V6 Z" />
+    <path d="M9 12 L11 14 L15.5 9.3" />
+  </g>
+  <g id="i-search" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="10.5" cy="10.5" r="6.5" /><path d="M19.5 19.5 15.3 15.3" />
+  </g>
+  <g id="i-alert" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3.5 21 19.5H3Z" /><path d="M12 9.5v4.2" /><circle cx="12" cy="16.7" r="0.9" fill="currentColor" stroke="none" />
+  </g>
+  <g id="i-coin" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="8.5" /><path d="M12 7.5v9M14.7 9.3c0-1-1.1-1.8-2.7-1.8-1.6 0-2.7.8-2.7 1.8 0 2.6 5.4 1.3 5.4 3.9 0 1-1.1 1.8-2.7 1.8-1.6 0-2.7-.8-2.7-1.8" />
+  </g>
+  <g id="i-link" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9.5 14.5 14.5 9.5" /><path d="M11 7l1.2-1.2a3.6 3.6 0 0 1 5 5L16 12" /><path d="M13 17l-1.2 1.2a3.6 3.6 0 0 1-5-5L8 12" />
+  </g>
+  <g id="i-target" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4.6" /><circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none" />
+  </g>
+  <g id="i-scale" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3v18M7 21h10" /><path d="M12 6 5 8.5l3.4 6a3.2 3.2 0 0 0 5.2 0L12 6Z" />
+    <path d="M4 8.5h6.5M12 6l7 2.5" /><path d="M17.5 8.5l3.4 6a3.2 3.2 0 0 1-5.2 0l1.8-6Z" />
+  </g>
+  <g id="i-layers" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3 21 8 12 13 3 8Z" /><path d="M3 12l9 5 9-5M3 16l9 5 9-5" />
+  </g>
+  <g id="i-clock" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3.3 2" />
+  </g>
+  <g id="i-lightbulb" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 18h6M10 21h4" /><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3Z" />
+  </g>
+  <g id="i-heart" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 20.2C7 16.7 3.5 13.3 3.5 9.4 3.5 6.7 5.6 4.6 8.3 4.6c1.5 0 2.9.7 3.7 1.9.8-1.2 2.2-1.9 3.7-1.9 2.7 0 4.8 2.1 4.8 4.8 0 3.9-3.5 7.3-8.5 10.8Z" />
+  </g>
+  <g id="i-basket" stroke="currentColor" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 9h16l-1.6 10.2a2 2 0 0 1-2 1.8H7.6a2 2 0 0 1-2-1.8Z" /><path d="M8.5 9 9 5.5A3 3 0 0 1 12 3a3 3 0 0 1 3 2.5l.5 3.5" /><path d="M9.5 13v4M14.5 13v4" />
+  </g>
+  <g id="i-sparkle" stroke="currentColor" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3l1.6 5.4L19 10l-5.4 1.6L12 17l-1.6-5.4L5 10l5.4-1.6Z" /><path d="M19 15l.7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7Z" />
+  </g>
+  </defs>
+</svg>
+
+<!-- ============ SLIDE 0 — COVER ============ -->
+<section class="slide cover" data-title="표지">
+  <div class="cover-bg"></div>
+  <div class="cover-content">
+    <div class="cover-badge">
+      <svg width="16" height="16" viewBox="0 0 24 24"><use href="#i-sparkle" style="color:var(--blue)"/></svg>
+      5일차 · 도메인 학습 &nbsp;/&nbsp; 마이데이터 브로커 비즈니스
+    </div>
+    <h1>마이데이터의 이해</h1>
+    <p class="lede">데이터는 <strong class="hl">권리(전송요구)</strong>로 흐르고,<br>
+      <strong class="hl">동의(Consent)</strong>가 그 수명을 지배한다.</p>
+    <div class="cover-questions">
+      <span class="qchip">① 스크래핑과 표준 API, 무엇이 다른가?</span>
+      <span class="qchip">② 동의 철회는 무엇으로 끝나는가?</span>
+      <span class="qchip">③ 무료 PFM은 어떻게 돈을 버는가?</span>
+    </div>
+    <div class="scroll-hint">
+      <span>스크롤 또는 방향키(<span class="kbd">↓</span> <span class="kbd">→</span>)로 다음 슬라이드</span>
+      <span class="arrow">↓</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 1 — TOC ============ -->
+<section class="slide" data-title="목차">
+  <div class="slide-inner">
+    <div class="eyebrow">Contents</div>
+    <h2>전체 목차</h2>
+    <p class="lede">아래 10개 챕터로 마이데이터의 구조 · 수명주기 · 설계 원칙 · 가치사슬을 훑습니다.</p>
+    <div class="toc-list" id="tocList"></div>
+    <div class="toc-note">※ <strong class="em-tag blue">마이데이터 2.0 주요 변경사항</strong>은 원 학습자료가 연결하는 별도 문서(마이데이터 파이프라인 자료)에서 다루는 항목으로, 이번 슬라이드에서는 핵심 토픽 지도로만 짚고 본문에서 깊게 다루지는 않습니다.</div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 2 — 학습목표 ============ -->
+<section class="slide" data-title="학습목표">
+  <div class="slide-inner">
+    <div class="section-num">CH. 01</div>
+    <h2>학습 목표 — 핵심 질문 3가지</h2>
+    <p class="lede">다음 3가지 질문에 자신의 언어로 <strong class="em-tag orange">30초 안에</strong> 답할 수 있어야 합니다.</p>
+    <div class="grid3" style="margin-top:22px;">
+      <div class="card">
+        <div class="icon-badge"><svg viewBox="0 0 24 24"><use href="#i-key"/></svg></div>
+        <h3>스크래핑과 표준 API의 차이는?</h3>
+        <p style="font-size:14.5px;">고객의 자격증명(ID/PW)을 통째로 위임받던 방식이 법적 권리에 근거한 표준 API 방식으로 바뀌었습니다. 그러면서 위험의 성격도 달라졌습니다 — <strong class="hl">대량 유출</strong> 대신 <strong class="hl">국지적 타인정보 오조회</strong>가 문제가 됩니다.</p>
+      </div>
+      <div class="card">
+        <div class="icon-badge orange"><svg viewBox="0 0 24 24"><use href="#i-trash"/></svg></div>
+        <h3>동의 철회는 무엇으로 끝나는가?</h3>
+        <p style="font-size:14.5px;">전송 중단만으로 끝나지 않습니다. <strong class="hl">동의 소멸 전파 → 전송 중단 → 배치 파기 → 이행 기록 로깅</strong>까지 4단계가 완료되어야 진짜 끝입니다.</p>
+      </div>
+      <div class="card">
+        <div class="icon-badge aqua"><svg viewBox="0 0 24 24"><use href="#i-coin"/></svg></div>
+        <h3>무료 PFM은 어떻게 돈을 버는가?</h3>
+        <p style="font-size:14.5px;">금융상품을 제공하는 원천 기업(금융사)으로부터 수수료를 받습니다. 상품 자체에는 영향력이 없어 <strong class="hl">판매 전환율 관리가 어렵고, 금융사를 상대로 한 협상력이 약합니다.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 3 — 보너스: 이용자 효용 ============ -->
+<section class="slide" data-title="이용자효용">
+  <div class="slide-inner">
+    <div class="section-num">BONUS</div>
+    <h2>마이데이터 동의, 사용자는 무엇을 얻는가?</h2>
+    <p class="lede">마이데이터 동의의 이용자 효용은 <strong class="hl">개인자산관리(PFM) 서비스 접근</strong>입니다.</p>
+    <div class="grid5" style="margin-top:22px;">
+      <div class="card" style="text-align:center;">
+        <div class="icon-badge" style="margin:0 auto 12px;"><svg viewBox="0 0 24 24"><use href="#i-clock"/></svg></div>
+        <p style="font-size:13.5px; margin:0;"><strong class="hl">압도적 시간 절약</strong><br>연동 편의성</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="icon-badge aqua" style="margin:0 auto 12px;"><svg viewBox="0 0 24 24"><use href="#i-network"/></svg></div>
+        <p style="font-size:13.5px; margin:0;"><strong class="hl">흩어진 자산</strong><br>일괄 파악</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="icon-badge violet" style="margin:0 auto 12px;"><svg viewBox="0 0 24 24"><use href="#i-basket"/></svg></div>
+        <p style="font-size:13.5px; margin:0;"><strong class="hl">소비 내역</strong><br>자동 분류</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="icon-badge orange" style="margin:0 auto 12px;"><svg viewBox="0 0 24 24"><use href="#i-lightbulb"/></svg></div>
+        <p style="font-size:13.5px; margin:0;"><strong class="hl">맞춤형 인사이트</strong><br>무료 비서 역할</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="icon-badge good" style="margin:0 auto 12px;"><svg viewBox="0 0 24 24"><use href="#i-heart"/></svg></div>
+        <p style="font-size:13.5px; margin:0;"><strong class="hl">생활 전반</strong><br>효용 확대</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 4 — Ch1 권리기반 구조전환 ============ -->
+<section class="slide" data-title="구조전환">
+  <div class="slide-inner">
+    <div class="section-num">CH. 02</div>
+    <h2>권리 기반의 구조 전환</h2>
+    <p class="lede">마이데이터는 단순한 IT 기술 연동이 아니라, 개인의 <strong class="hl">전송요구권이라는 법적 권리 행사</strong>에서 출발합니다.</p>
+    <div class="vs-wrap">
+      <div class="vs-card old">
+        <div class="kicker">Before · 스크래핑</div>
+        <div class="icon-badge critical"><svg viewBox="0 0 24 24"><use href="#i-key"/></svg></div>
+        <h3>자격증명 위임 방식</h3>
+        <p style="font-size:14.5px;">고객의 비밀번호 등 자격증명을 통째로 위임받아 대신 로그인, 데이터를 긁어오는 방식</p>
+        <div class="risk-pill critical"><svg width="15" height="15" viewBox="0 0 24 24"><use href="#i-alert"/></svg> 위험: 대량 유출 가능성</div>
+      </div>
+      <div class="vs-mid">→</div>
+      <div class="vs-card new">
+        <div class="kicker">After · 표준 API</div>
+        <div class="icon-badge"><svg viewBox="0 0 24 24"><use href="#i-check-shield"/></svg></div>
+        <h3>전송요구권 기반 방식</h3>
+        <p style="font-size:14.5px;">정보주체가 법적 권리를 행사하여, 기관 간 표준화된 API로 필요한 데이터만 전송</p>
+        <div class="risk-pill serious"><svg width="15" height="15" viewBox="0 0 24 24"><use href="#i-search"/></svg> 위험: 국지적 타인정보 오조회</div>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:18px;">위험이 사라진 것은 아닙니다. <strong class="hl">성격이 바뀌었을 뿐</strong>입니다. 그래서 설계자는 항상 "이 조회가 진짜 소유자 본인의 것인가"를 검증해야 합니다.</p>
+  </div>
+</section>
+
+<!-- ============ SLIDE 5 — 생태계 참여구조 ============ -->
+<section class="slide" data-title="생태계구조">
+  <div class="slide-inner">
+    <div class="section-num">CH. 02 · 부속</div>
+    <h2>마이데이터 생태계 참여 구조</h2>
+    <p class="lede">지원·감독 인프라와 데이터 흐름 참여자로 구성됩니다. 각 항목에 마우스를 올려보세요.</p>
+    <div class="eco-wrap">
+      <img src="assets/diagram-ecosystem.png" alt="마이데이터 데이터 흐름 참여 구조도">
+      <div class="eco-legend">
+        <div class="eco-chip hoverable" tabindex="0">
+          <div class="ico" style="background:color-mix(in srgb, var(--blue) 16%, transparent); color:var(--blue);"><svg viewBox="0 0 24 24"><use href="#i-bank"/></svg></div>
+          <b>금융위 · 금감원</b>
+          <div class="tip">허가와 감독을 담당하는 최상위 규제기관입니다.</div>
+        </div>
+        <div class="eco-chip hoverable" tabindex="0">
+          <div class="ico" style="background:color-mix(in srgb, var(--aqua) 16%, transparent); color:var(--aqua);"><svg viewBox="0 0 24 24"><use href="#i-building"/></svg></div>
+          <b>신용정보원</b>
+          <div class="tip">마이데이터 종합포털과 지원센터를 운영합니다.</div>
+        </div>
+        <div class="eco-chip hoverable" tabindex="0">
+          <div class="ico" style="background:color-mix(in srgb, var(--violet) 16%, transparent); color:var(--violet);"><svg viewBox="0 0 24 24"><use href="#i-shield"/></svg></div>
+          <b>금융보안원</b>
+          <div class="tip">표준 API 규격을 관리하고 적합성 심사·테스트베드를 운영합니다.</div>
+        </div>
+        <div class="eco-chip hoverable" tabindex="0">
+          <div class="ico" style="background:color-mix(in srgb, var(--orange) 16%, transparent); color:var(--orange);"><svg viewBox="0 0 24 24"><use href="#i-bank"/></svg></div>
+          <b>정보제공자 · 중소형 / 대형</b>
+          <div class="tip">저축은행·상호금융 등은 중계기관을 경유하고, 은행·카드·대형증권은 표준 API로 직접 전송합니다.</div>
+        </div>
+        <div class="eco-chip hoverable" tabindex="0">
+          <div class="ico" style="background:color-mix(in srgb, var(--yellow) 18%, transparent); color:#8a5a00;"><svg viewBox="0 0 24 24"><use href="#i-network"/></svg></div>
+          <b>중계기관</b>
+          <div class="tip">금융결제원·신용정보원 등이 중소형 정보제공자의 표준 API 전송을 대행합니다.</div>
+        </div>
+        <div class="eco-chip hoverable" tabindex="0">
+          <div class="ico" style="background:color-mix(in srgb, var(--good) 16%, transparent); color:var(--good);"><svg viewBox="0 0 24 24"><use href="#i-phone"/></svg></div>
+          <b>마이데이터사업자</b>
+          <div class="tip">대행·직접 전송을 모두 수신해 통합조회·PFM 앱으로 최종 서비스를 구성합니다.</div>
+        </div>
+        <div class="eco-chip hoverable" tabindex="0">
+          <div class="ico" style="background:color-mix(in srgb, var(--magenta) 18%, transparent); color:#9c3a63;"><svg viewBox="0 0 24 24"><use href="#i-person"/></svg></div>
+          <b>고객 (정보주체)</b>
+          <div class="tip">전송요구권의 주체이자, 데이터 흐름을 실제로 개폐하는 최종 결정권자입니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 6 — Ch2 통합인증 UX ============ -->
+<section class="slide" data-title="통합인증">
+  <div class="slide-inner">
+    <div class="section-num">CH. 03</div>
+    <h2>통합인증과 UX — <span class="em-pill blue">1건</span>처럼 보이지만 <span class="em-pill orange">N건</span>으로 관리된다</h2>
+    <p class="lede">사용자 편의를 위해 통합인증은 <strong class="em-tag blue">1건</strong>으로 처리하더라도, 백엔드의 동의 내역은 <strong class="em-tag orange">기관별 N건</strong>으로 개별 관리해야 합니다.</p>
+    <div class="flow-wrap">
+      <div class="flow-node">
+        <div class="ico" style="background:color-mix(in srgb, var(--blue) 16%, transparent); color:var(--blue);"><svg viewBox="0 0 24 24"><use href="#i-person"/></svg></div>
+        <b>사용자</b><span>통합인증 1회 클릭</span>
+      </div>
+      <div class="flow-arrow"><span>UX 상 1건</span><div class="line"></div></div>
+      <div class="flow-node">
+        <div class="ico" style="background:color-mix(in srgb, var(--aqua) 16%, transparent); color:var(--aqua);"><svg viewBox="0 0 24 24"><use href="#i-phone"/></svg></div>
+        <b>마이데이터사업자</b><span>통합 인증 처리</span>
+      </div>
+      <div class="flow-arrow"><span>백엔드 분기</span><div class="line"></div></div>
+      <div class="flow-node hoverable" tabindex="0" style="border-color:var(--blue);">
+        <div class="ico" style="background:color-mix(in srgb, var(--orange) 16%, transparent); color:var(--orange);"><svg viewBox="0 0 24 24"><use href="#i-layers"/></svg></div>
+        <b>동의 레코드 N건</b><span>기관 A · B · C … 개별 관리</span>
+        <div class="tip">은행 1건, 카드사 1건, 증권사 1건 — 각 기관의 동의는 독립된 레코드로 저장·철회·만료됩니다. 하나가 철회돼도 나머지는 살아있습니다.</div>
+      </div>
+    </div>
+    <p class="muted">이 원칙은 뒤에서 다룰 <strong class="hl">Consent 설계 5대 불변식의 2번째 원칙</strong>과 정확히 같은 이야기입니다.</p>
+  </div>
+</section>
+
+<!-- ============ SLIDE 7 — Ch3 Consent 수명주기 ============ -->
+<section class="slide" data-title="수명주기">
+  <div class="slide-inner">
+    <div class="section-num">CH. 04</div>
+    <h2>Consent 수명주기 — 상태 기계로 다루기</h2>
+    <p class="lede">고객의 동의(Consent)는 팝업 한 번이 아니라 <strong class="hl">1급 객체(first-class object)</strong>로 설계되어야 합니다. 상태와 전이 조건에 마우스를 올려보세요.</p>
+    <div class="lifecycle-wrap">
+      <img class="lifecycle-img" src="assets/diagram-lifecycle.png" alt="동의 수명주기 상태 기계도">
+      <div class="state-track">
+        <div class="state-node hoverable" tabindex="0" style="background:var(--blue);">
+          <svg viewBox="0 0 24 24"><use href="#i-flag"/></svg>Requested
+          <div class="tip">전송요구서 동의로 시작. 통합인증 성공 시 Consent가 성립됩니다.</div>
+        </div>
+        <div class="state-arrow">→</div>
+        <div class="state-node hoverable" tabindex="0" style="background:var(--good);">
+          <svg viewBox="0 0 24 24"><use href="#i-refresh"/></svg>Active
+          <div class="tip">정기·수시로 데이터가 반복 전송되는 정상 상태입니다.</div>
+        </div>
+        <div class="state-arrow">→</div>
+        <div class="state-node hoverable" tabindex="0" style="background:#D97706; color:#FFF8F3;">
+          <svg viewBox="0 0 24 24"><use href="#i-pause"/></svg>Suspended
+          <div class="tip" style="color:#FFF8F3;">6개월 미로그인 시 전송이 중단됩니다. 재로그인·재확인으로 Active 복귀 가능합니다.</div>
+        </div>
+        <div class="state-arrow">→</div>
+        <div class="state-node hoverable" tabindex="0" style="background:var(--text-muted);">
+          <svg viewBox="0 0 24 24"><use href="#i-hourglass"/></svg>Expired
+          <div class="tip">가입 유효기간(최대 5년) 만료로 자연 종료됩니다.</div>
+        </div>
+        <div class="state-arrow">→</div>
+        <div class="state-node hoverable" tabindex="0" style="background:var(--critical);">
+          <svg viewBox="0 0 24 24"><use href="#i-userx"/></svg>Revoked
+          <div class="tip">고객의 철회(연동 해제) 또는 1년 이상 미접속 시 자동 삭제로 도달합니다.</div>
+        </div>
+        <div class="state-arrow">→</div>
+        <div class="state-node hoverable" tabindex="0" style="background:var(--text-primary); color:#FFF8F3;">
+          <svg viewBox="0 0 24 24"><use href="#i-trash"/></svg>Purged
+          <div class="tip" style="color:#FFF8F3;">Expired · Revoked 모두 파기 절차로 수렴하는 최종 상태입니다.</div>
+        </div>
+      </div>
+    </div>
+    <div class="batch-callout">
+      <div class="col">
+        <b><svg width="16" height="16" viewBox="0 0 24 24" style="color:var(--critical)"><use href="#i-alert"/></svg> 대량 철회 시나리오 — 하루 1,000명 동시 철회</b>
+        <p style="margin:0; font-size:13.5px;">실시간 전송 중단과 야간 배치 파기 작업을 <strong class="hl">분리</strong>해서 대응합니다. 전송 중단은 즉시, 파기는 정해진 배치 주기로.</p>
+      </div>
+      <div class="col">
+        <b><svg width="16" height="16" viewBox="0 0 24 24" style="color:var(--blue)"><use href="#i-check-shield"/></svg> 수명주기의 진짜 끝</b>
+        <p style="margin:0; font-size:13.5px;">전송을 중단했다고 끝이 아닙니다. 이미 수집된 <strong class="hl">사본 데이터</strong>를 파기하고 <strong class="hl">증적(로깅)</strong>까지 마쳐야 비로소 완료됩니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 8 — Ch4 5대 불변식 ============ -->
+<section class="slide" data-title="5대불변식">
+  <div class="slide-inner">
+    <div class="section-num">CH. 05</div>
+    <h2>Consent 설계의 5가지 불변식(Invariants)</h2>
+    <p class="lede">기획·검수 단계에서 타협 없이 항상 지켜야 하는 5가지 원칙. 검증 도구로 그대로 활용하세요.</p>
+    <div class="grid2" style="margin-top:20px; gap:16px;">
+      <div class="card inv-card"><div class="inv-num">1</div><p><strong class="hl">소유자 검증</strong> — 모든 조회는 subject(소유자) 검증을 통과해야 타인정보 오조회를 막을 수 있습니다.</p></div>
+      <div class="card inv-card"><div class="inv-num">2</div><p><strong class="hl">1건 UX / N건 백엔드</strong> — 통합인증은 1건이어도, 동의 내역은 기관별로 개별 관리해야 합니다.</p></div>
+      <div class="card inv-card"><div class="inv-num">3</div><p><strong class="hl">철회 → 파기 + 증적</strong> — 동의 철회는 반드시 파기 및 증적 절차로 이어져야 컴플라이언스 사고를 막습니다.</p></div>
+      <div class="card inv-card"><div class="inv-num">4</div><p><strong class="hl">최소 수집 원칙</strong> — 포괄 동의를 금지하고, 수집 범위는 목적에 필요한 최소한으로 좁혀야 합니다.</p></div>
+      <div class="card inv-card" style="grid-column:1 / -1;"><div class="inv-num">5</div><p><strong class="hl">인사이트-중개 경계</strong> — 데이터 기반 인사이트(조언)가 특정 상품의 권유(중개)로 슬쩍 넘어가지 않도록 소비자 보호 경계를 명확히 설정해야 합니다.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 9 — Ch5 PFM 로직·수익구조 ============ -->
+<section class="slide" data-title="PFM·수익구조">
+  <div class="slide-inner">
+    <div class="section-num">CH. 06</div>
+    <h2>PFM 로직 · 데이터 융합, 그리고 수익 구조</h2>
+    <p class="lede">서비스 가치는 데이터 <strong class="hl">수집 자체</strong>에 있지 않습니다. <strong class="hl">융합 · 분류 · 개인화된 인사이트 도출</strong>에 있습니다.</p>
+    <div class="flow-wrap">
+      <div class="flow-node">
+        <div class="ico" style="background:color-mix(in srgb, var(--blue) 16%, transparent); color:var(--blue);"><svg viewBox="0 0 24 24"><use href="#i-person"/></svg></div>
+        <b>이용자</b><span>PFM 무료 이용</span>
+      </div>
+      <div class="flow-arrow"><span>이용료 없음</span><div class="line"></div></div>
+      <div class="flow-node hoverable" tabindex="0">
+        <div class="ico" style="background:color-mix(in srgb, var(--aqua) 16%, transparent); color:var(--aqua);"><svg viewBox="0 0 24 24"><use href="#i-lightbulb"/></svg></div>
+        <b>PFM 플랫폼</b><span>융합 · 분류 · 인사이트</span>
+        <div class="tip">핵심 가치는 원본 데이터를 그대로 파는 데 있지 않습니다. 여러 기관의 데이터를 합치고 분류해 지금 이 사람에게 맞는 인사이트를 만드는 데 있습니다.</div>
+      </div>
+      <div class="flow-arrow pay"><span>수수료 지급</span><div class="line"></div></div>
+      <div class="flow-node">
+        <div class="ico" style="background:color-mix(in srgb, var(--critical) 14%, transparent); color:var(--critical);"><svg viewBox="0 0 24 24"><use href="#i-bank"/></svg></div>
+        <b>금융상품 원천 기업</b><span>실질적 지불 주체</span>
+      </div>
+    </div>
+    <div class="grid2" style="margin-top:12px;">
+      <div class="card">
+        <div class="icon-badge warning"><svg viewBox="0 0 24 24"><use href="#i-alert"/></svg></div>
+        <h3>협상력이 약한 구조</h3>
+        <p style="font-size:14.5px;">플랫폼은 금융상품 자체에 영향을 줄 수 없어 상품 판매로 이어지는 전환율을 관리하기 어렵습니다. <strong class="hl">핀테크 플랫폼이 금융사를 상대로 갖는 협상력도 약합니다.</strong></p>
+      </div>
+      <div class="card">
+        <div class="icon-badge"><svg viewBox="0 0 24 24"><use href="#i-network"/></svg></div>
+        <h3>가치의 원천은 <span class="em-pill aqua">연결 이후</span></h3>
+        <p style="font-size:14.5px;">단순 조회(수집)는 이미 표준화되어 차별점이 되지 않습니다. 차별화는 <strong class="hl">데이터 융합 · 분류 · PFM 로직</strong>에서 만들어집니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 10 — Ch6 오개념 타파 ============ -->
+<section class="slide" data-title="오개념타파">
+  <div class="slide-inner">
+    <div class="section-num">CH. 07</div>
+    <h2>오개념 타파 — <span class="em-pill violet">마이데이터 통제권의 현실</span></h2>
+    <p class="lede">데이터 통제권이라는 말이 주는 인상과 시스템이 실제로 할 수 있는 일 사이에는 간극이 있습니다.</p>
+    <div class="mf-wrap">
+      <div class="mf-card myth">
+        <div class="mf-label"><svg width="14" height="14" viewBox="0 0 24 24"><use href="#i-alert"/></svg> 흔한 오해 (Myth)</div>
+        <p>데이터 통제권을 행사하면 은행의 <strong>원본 데이터가 통째로 소멸</strong>하거나, 이미 비식별화되어 정산까지 끝난 <strong>파생물까지 소급 회수</strong>할 수 있다.</p>
+      </div>
+      <div class="mf-card fact">
+        <div class="mf-label"><svg width="14" height="14" viewBox="0 0 24 24"><use href="#i-check-shield"/></svg> 실제로 가능한 것 (Fact)</div>
+        <p>데이터 통제란 <strong>① 흐름의 개폐</strong>(전송을 계속할지 멈출지) <strong>+ ② 사본 파기 요구</strong>(마이데이터사업자가 보관 중인 사본을 지우도록 요청) — 딱 이 두 가지입니다.</p>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:20px;">원본 은행 데이터의 소멸이나 이미 처리·정산이 끝난 파생물의 소급 회수는 구조적으로 불가능합니다. PM은 이 경계를 고객에게 정확히 설명할 수 있어야 합니다.</p>
+  </div>
+</section>
+
+<!-- ============ SLIDE 11 — 마무리 ============ -->
+<section class="slide" data-title="마무리">
+  <div class="slide-inner" style="text-align:center;">
+    <div class="eyebrow" style="justify-content:center;">Wrap-up</div>
+    <h2>학습을 통한 결과물</h2>
+    <p class="lede" style="margin:0 auto 28px;">나만의 <strong class="em-tag blue" style="font-size:1.1em; padding:3px 12px;">마이데이터 PM 지식 총정리</strong> HTML 페이지를<br>인터랙티브하게 제작하기 — 지금 보고 있는 이 슬라이드가 그 첫 걸음입니다.</p>
+    <div class="grid3" style="text-align:left;">
+      <div class="card">
+        <div class="icon-badge"><svg viewBox="0 0 24 24"><use href="#i-key"/></svg></div>
+        <h3 style="font-size:15.5px;">구조 전환</h3>
+        <p style="font-size:14px;">스크래핑 → 표준 API. 위험은 대량 유출에서 국지적 오조회로.</p>
+      </div>
+      <div class="card">
+        <div class="icon-badge orange"><svg viewBox="0 0 24 24"><use href="#i-trash"/></svg></div>
+        <h3 style="font-size:15.5px;">수명주기 통제</h3>
+        <p style="font-size:14px;">철회는 전송 중단이 아니라 파기 + 증적까지가 끝.</p>
+      </div>
+      <div class="card">
+        <div class="icon-badge aqua"><svg viewBox="0 0 24 24"><use href="#i-coin"/></svg></div>
+        <h3 style="font-size:15.5px;">가치와 수익</h3>
+        <p style="font-size:14px;">가치는 융합·분류·인사이트. 수익은 금융사 수수료, 협상력은 약함.</p>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:32px;">Home 키를 누르면 표지로, End 키를 누르면 이 슬라이드로 돌아옵니다.</p>
+  </div>
+</section>
+
+<!-- ============ PROGRESS GAUGE ============ -->
+<div class="progress-wrap">
+  <div class="progress-inner">
+    <div class="progress-label">
+      <span id="progLabel" class="now">01 · 표지</span>
+      <span id="progCount" class="muted">1 / 12</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progFill"></div>
+      <div class="progress-ticks" id="progTicks"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var slides = Array.from(document.querySelectorAll('.slide'));
+  var total = slides.length;
+  var current = 0;
+
+  var tocTitles = [
+    {t:'학습 목표', s:'핵심 질문 3가지에 30초 안에 답하기'},
+    {t:'이용자 효용', s:'마이데이터 동의로 얻는 것 — PFM 접근'},
+    {t:'권리 기반의 구조 전환', s:'스크래핑 → 표준 API, 위험의 이동'},
+    {t:'생태계 참여 구조', s:'감독 인프라와 데이터 흐름 참여자'},
+    {t:'통합인증과 UX', s:'1건의 UX, N건의 백엔드 동의'},
+    {t:'Consent 수명주기', s:'상태 기계와 대량 철회 대응'},
+    {t:'5대 불변식', s:'Consent 설계에서 타협 불가한 원칙'},
+    {t:'PFM 로직 · 수익 구조', s:'가치는 융합에, 수익은 수수료에'},
+    {t:'오개념 타파', s:'통제권의 현실 — 개폐와 파기 요구'},
+    {t:'마무리', s:'학습 결과물 정리'}
+  ];
+  var tocList = document.getElementById('tocList');
+  tocTitles.forEach(function(item, i){
+    var el = document.createElement('div');
+    el.className = 'toc-item';
+    el.tabIndex = 0;
+    el.setAttribute('role','button');
+    el.dataset.index = i + 2;
+    el.innerHTML = '<span class="num">'+String(i+1).padStart(2,'0')+'</span>'+
+      '<span class="txt"><b>'+item.t+'</b><span>'+item.s+'</span></span>'+
+      '<span class="go">›</span>';
+    el.addEventListener('click', function(){ goTo(parseInt(el.dataset.index,10)); });
+    el.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); goTo(parseInt(el.dataset.index,10)); } });
+    tocList.appendChild(el);
+  });
+
+  var ticksWrap = document.getElementById('progTicks');
+  slides.forEach(function(s, i){
+    var tick = document.createElement('div');
+    tick.className = 'progress-tick';
+    tick.title = s.dataset.title || ('슬라이드 ' + (i+1));
+    tick.addEventListener('click', function(){ goTo(i); });
+    ticksWrap.appendChild(tick);
+  });
+  var tickEls = Array.from(ticksWrap.querySelectorAll('.progress-tick'));
+
+  function updateProgress(){
+    var fill = document.getElementById('progFill');
+    var label = document.getElementById('progLabel');
+    var count = document.getElementById('progCount');
+    var pct = ((current + 1) / total) * 100;
+    fill.style.width = pct + '%';
+    label.textContent = String(current+1).padStart(2,'0') + ' · ' + (slides[current].dataset.title || '');
+    count.textContent = (current+1) + ' / ' + total;
+    tickEls.forEach(function(t, i){
+      t.classList.toggle('done', i < current);
+      t.classList.toggle('active', i === current);
+    });
+    Array.from(tocList.children).forEach(function(el){
+      el.style.background = (parseInt(el.dataset.index,10) === current) ? 'var(--card)' : '';
+    });
+  }
+
+  function goTo(i){
+    i = Math.max(0, Math.min(total - 1, i));
+    slides[i].scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  window.addEventListener('keydown', function(e){
+    var tag = (document.activeElement && document.activeElement.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    var next = ['ArrowDown','ArrowRight','PageDown'];
+    var prev = ['ArrowUp','ArrowLeft','PageUp'];
+    if (next.indexOf(e.key) !== -1){ e.preventDefault(); goTo(current + 1); }
+    else if (prev.indexOf(e.key) !== -1){ e.preventDefault(); goTo(current - 1); }
+    else if (e.key === ' '){ e.preventDefault(); goTo(current + 1); }
+    else if (e.key === 'Home'){ e.preventDefault(); goTo(0); }
+    else if (e.key === 'End'){ e.preventDefault(); goTo(total - 1); }
+  });
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting && en.intersectionRatio >= 0.55){
+        current = slides.indexOf(en.target);
+        updateProgress();
+      }
+    });
+  }, {threshold:[0.55]});
+  slides.forEach(function(s){ io.observe(s); });
+
+  updateProgress();
+})();
+</script>
+
+</body>
+</html>
