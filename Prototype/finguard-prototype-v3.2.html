@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinGuard - Interactive Prototype Document</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* CSS Reset & Base Variables */
+        :root {
+            --bg-body: #f1f5f9;
+            --bg-panel: #ffffff;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            
+            --sidebar-width: 250px;
+            --spec-panel-width: 450px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header / View Toggle */
+        header {
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .view-toggle {
+            display: flex;
+            background-color: var(--bg-body);
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .toggle-btn {
+            border: none;
+            background: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background-color: var(--bg-panel);
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .nav-section-title {
+            padding: 0 20px 10px;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-list {
+            list-style: none;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-main);
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            background-color: var(--bg-body);
+        }
+
+        .nav-item.active {
+            background-color: #eff6ff;
+            border-left-color: var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Content Area (Split View) */
+        .content-area {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Left: UI Prototype Panel */
+        .ui-panel {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--bg-body);
+            overflow-y: auto;
+            padding: 40px;
+        }
+
+        .device-mockup {
+            width: 375px;
+            height: 700px;
+            background-color: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            border: 8px solid #cbd5e1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .device-mockup.admin-mode {
+            width: 800px;
+            height: auto;
+            min-height: 600px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .ui-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: white;
+        }
+
+        .ui-header h2 {
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .ui-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+
+        /* Right: Specification Panel */
+        .spec-panel {
+            width: var(--spec-panel-width);
+            background-color: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .spec-header {
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .spec-header h2 {
+            font-size: 20px;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .spec-section {
+            margin-bottom: 24px;
+        }
+
+        .spec-section h3 {
+            font-size: 13px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .spec-section p, .spec-section ul {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #334155;
+        }
+        
+        .spec-section ul {
+            padding-left: 20px;
+        }
+
+        /* Prototype UI Components */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            width: 100%;
+            transition: 0.2s;
+        }
+        
+        .btn:hover { background: var(--primary-hover); }
+        .btn.outline {
+            background: white;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        .btn.success { background: var(--success); }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge.warning { background: #fef3c7; color: #b45309; }
+        .badge.danger { background: #fee2e2; color: #b91c1c; }
+        .badge.success { background: #d1fae5; color: #047857; }
+
+        .big-score {
+            text-align: center;
+            padding: 30px 0;
+        }
+        .big-score h1 { font-size: 48px; color: var(--danger); line-height: 1; }
+        .big-score p { font-size: 16px; font-weight: 600; color: var(--text-muted); margin-top: 8px; }
+
+        .ai-reason {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .ai-reason:last-child { border-bottom: none; }
+        .ai-reason .number {
+            width: 24px;
+            height: 24px;
+            background: #fee2e2;
+            color: var(--danger);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        /* Admin Table */
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .admin-table th, .admin-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+        .admin-table th { background: #f8fafc; font-weight: 600; color: var(--text-muted); }
+
+        /* Animation class */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            display: none;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px; height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo"><i class="fa-solid fa-shield-halved"></i> FinGuard PRD Prototype</div>
+        <div class="view-toggle">
+            <button class="toggle-btn active" onclick="switchView('customer')">Customer View</button>
+            <button class="toggle-btn" onclick="switchView('admin')">Admin View</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div id="nav-container">
+                <!-- Nav items injected here -->
+            </div>
+        </aside>
+
+        <main class="content-area">
+            <section class="ui-panel">
+                <div id="device" class="device-mockup">
+                    <div class="ui-header">
+                        <h2 id="ui-title">Screen Title</h2>
+                    </div>
+                    <div id="ui-body" class="ui-body fade-in">
+                        <!-- UI injected here -->
+                    </div>
+                    <!-- Simulation Loading Overlay -->
+                    <div id="loading" class="loading-overlay">
+                        <div class="spinner"></div>
+                        <p style="margin-top:16px; font-weight:600; color:var(--text-muted);" id="loading-text">AI 분석 중...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="spec-panel">
+                <div class="spec-header">
+                    <h2 id="spec-title">Screen Name</h2>
+                    <p style="color: var(--text-muted); font-size: 14px;">Screen Specification Panel</p>
+                </div>
+                <div id="spec-content" class="fade-in">
+                    <!-- Specs injected here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // --- Data & Specs Definition ---
+        
+        const PRD_DATA = {
+            customer: [
+                {
+                    id: 'c1', title: 'Screen 01. Financial Data Connection',
+                    spec: {
+                        objective: '사용자가 여러 금융 서비스 데이터를 연결하여 미래 금융 위험 분석 준비',
+                        problem: '미래 지출 데이터 분산, 현재 잔액 기준 판단으로 인한 현금 부족 발생 위험. 특히 다중 BNPL 사용 파악 불가.',
+                        functional: '일반 마이데이터 연동 외에 멀티플랫폼 BNPL(네이버, 토스, 카카오페이 등) 직접 계정 연결 기능 제공',
+                        data: '사용자 동의 데이터, 금융 거래 정보, 각 플랫폼별 BNPL 이용 정보 (결제예정일, 상환예정금액)',
+                        dev: 'BNPL은 API 연동 방식이 아닌 사용자가 직접 각 플랫폼 계정을 연결하여 스크래핑/동의 기반으로 데이터를 가져오는 방식으로 구현',
+                        design: '명확한 연결 상태 피드백, "정보 제공 동의 기반 분석" 임을 명시하여 신뢰감 형성',
+                        compliance: '명시적 사용자 동의 필수, 데이터 접근 권한 관리, 목적에 맞는 최소 데이터 수집 원칙 준수'
+                    },
+                    renderUI: () => `
+                        <p style="font-size:14px; color:#64748b; margin-bottom:16px;">사용자가 연결 및 정보 제공에 동의한 금융 데이터를 기반으로 분석합니다.</p>
+                        <div class="card">
+                            <div class="flex-between">
+                                <div><strong>은행 계좌</strong><br><span style="font-size:12px; color:#64748b;">연결 완료</span></div>
+                                <i class="fa-solid fa-check-circle" style="color:var(--success);"></i>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="flex-between">
+                                <div><strong>신용카드</strong><br><span style="font-size:12px; color:#64748b;">연결 완료</span></div>
+                                <i class="fa-solid fa-check-circle" style="color:var(--success);"></i>
+                            </div>
+                        </div>
+                        <h3 style="font-size:14px; margin:24px 0 12px;">BNPL (후불결제) 직접 연결</h3>
+                        <div class="card">
+                            <div class="flex-between" style="margin-bottom:12px;">
+                                <div><i class="fa-solid fa-n" style="color:#03c75a;"></i> <strong>네이버페이 후불결제</strong></div>
+                                ${state.bnpl.naver ? '<span class="badge success">연결됨</span>' : ''}
+                            </div>
+                            ${state.bnpl.naver ? 
+                                `<div style="background:#f8fafc; padding:8px; border-radius:6px; font-size:13px; margin-bottom:8px;">이용금액: 150,000원<br>결제예정일: 매월 15일</div>
+                                 <button class="btn outline" style="padding:6px; font-size:12px;" onclick="toggleConnect('naver')">연결 해제</button>` : 
+                                `<button class="btn" onclick="toggleConnect('naver')">계정 연결</button>`}
+                        </div>
+                        <div class="card">
+                            <div class="flex-between" style="margin-bottom:12px;">
+                                <div><i class="fa-solid fa-t" style="color:#0050ff;"></i> <strong>토스 후불결제</strong></div>
+                                ${state.bnpl.toss ? '<span class="badge success">연결됨</span>' : ''}
+                            </div>
+                            ${state.bnpl.toss ? 
+                                `<div style="background:#f8fafc; padding:8px; border-radius:6px; font-size:13px; margin-bottom:8px;">이용금액: 230,000원<br>결제예정일: 매월 10일</div>
+                                 <button class="btn outline" style="padding:6px; font-size:12px;" onclick="toggleConnect('toss')">연결 해제</button>` : 
+                                `<button class="btn" onclick="toggleConnect('toss')">계정 연결</button>`}
+                        </div>
+                    `
+                },
+                {
+                    id: 'c2', title: 'Screen 02. Financial Health Dashboard',
+                    spec: {
+                        objective: '현재 금융 상태와 미래 위험 가능성을 한눈에 제공',
+                        problem: '현재 잔액만 알 뿐, 카드값과 BNPL 상환액이 빠져나간 후의 진짜 내 상태를 알기 어려움',
+                        functional: '연결된 데이터 기반 금융 상태 요약, 통합 계산된 AI 위험 수준(Score) 표시',
+                        data: '은행 계좌 잔액, 예상 수입, 결제 예정 카드대금, BNPL 상환 예정액, 대출 상환액, 고정비',
+                        dev: '다양한 소스의 데이터를 정규화하여 총합을 계산하는 로직 필요',
+                        design: '숫자 중심의 정보 구조, 심각도에 따른 컬러(경고) 사용으로 직관적 인지 도모',
+                        compliance: '-'
+                    },
+                    renderUI: () => `
+                        <div class="big-score">
+                            <h1 style="color: ${state.appliedAction ? 'var(--warning)' : 'var(--danger)'}">
+                                ${state.appliedAction ? '68' : '78'}점
+                            </h1>
+                            <p><span class="badge ${state.appliedAction ? 'warning' : 'danger'}">${state.appliedAction ? '관심 필요' : '주의 요망'}</span></p>
+                        </div>
+                        
+                        <h3 style="font-size:14px; margin-bottom:12px;">자산 및 수입</h3>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:24px;">
+                            <div class="card" style="margin:0;">
+                                <div style="font-size:12px; color:var(--text-muted);">현재 자산</div>
+                                <div style="font-size:16px; font-weight:700;">1,800,000원</div>
+                            </div>
+                            <div class="card" style="margin:0;">
+                                <div style="font-size:12px; color:var(--text-muted);">예상 수입</div>
+                                <div style="font-size:16px; font-weight:700;">+2,500,000원</div>
+                            </div>
+                        </div>
+
+                        <h3 style="font-size:14px; margin-bottom:12px;">예정 금융 부담 (이번 달)</h3>
+                        <div class="card">
+                            <div class="flex-between" style="margin-bottom:8px;">
+                                <span style="font-size:14px;">카드 결제</span>
+                                <strong>1,200,000원</strong>
+                            </div>
+                            <div class="flex-between" style="margin-bottom:8px;">
+                                <span style="font-size:14px;">BNPL 상환 총합</span>
+                                <strong style="color:var(--danger);">${state.appliedAction ? '180,000원' : '380,000원'}</strong>
+                            </div>
+                            <div class="flex-between" style="margin-bottom:8px;">
+                                <span style="font-size:14px;">대출 상환</span>
+                                <strong>350,000원</strong>
+                            </div>
+                            <div class="flex-between">
+                                <span style="font-size:14px;">고정비</span>
+                                <strong>700,000원</strong>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    id: 'c3', title: 'Screen 03. Future Cash Flow Analysis',
+                    spec: {
+                        objective: '미래 현금 흐름 변화를 시각화하여 지출 계획 수립 지원',
+                        problem: '머릿속으로 계산하기 어려운 일정별 현금 입출금 변화를 파악하기 힘듦',
+                        functional: '월별(또는 주차별) 예상 잔액 그래프 표시, BNPL 감소 및 소비 조정 시뮬레이션 기능',
+                        data: '날짜별 지출/수입 매핑 데이터 배열',
+                        dev: 'Chart.js 적용, 시뮬레이션 버튼 클릭 시 데이터셋 업데이트 및 애니메이션 재렌더링',
+                        design: '시계열 데이터의 직관적 이해를 돕기 위한 Line/Area Chart 활용',
+                        compliance: '해당 시뮬레이션은 예측치이며 실제와 다를 수 있음을 하단에 명시'
+                    },
+                    renderUI: () => `
+                        <div class="card" style="margin-bottom:24px;">
+                            <h3 style="font-size:14px; margin-bottom:16px; text-align:center;">예상 잔액 추이 (8월)</h3>
+                            <canvas id="cashflowChart" width="100" height="80"></canvas>
+                            <div style="margin-top:16px; font-size:14px; text-align:center; padding:12px; background:#f8fafc; border-radius:8px;">
+                                8월 말 예상 잔액: <strong style="color:${state.simulated ? 'var(--success)' : 'var(--danger)'}; font-size:18px;">
+                                ${state.simulated ? '850,000원' : '650,000원'}</strong>
+                            </div>
+                        </div>
+                        
+                        <h3 style="font-size:14px; margin-bottom:12px;">현금 흐름 시뮬레이션</h3>
+                        <button class="btn outline" style="margin-bottom:8px;" onclick="simulateCashflow(true)">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> BNPL 및 소비 20만원 조정 시
+                        </button>
+                        <button class="btn outline" onclick="simulateCashflow(false)">
+                            <i class="fa-solid fa-rotate-left"></i> 원래대로 복구
+                        </button>
+                        <p style="font-size:11px; color:var(--text-muted); margin-top:20px; text-align:center;">* 본 분석은 예측 정보로 실제 결과와 다를 수 있습니다.</p>
+                    `
+                },
+                {
+                    id: 'c4', title: 'Screen 04. AI Risk Analysis',
+                    spec: {
+                        objective: 'AI 판단 근거 제공 (Explainable AI 구조)',
+                        problem: '서비스가 "위험하다"고만 하면 사용자는 이유를 몰라 행동을 바꾸지 않음',
+                        functional: 'Risk Score와 함께 구체적인 위험 원인, 원천 데이터 근거, 예상되는 영향을 텍스트로 풀어 설명',
+                        data: 'AI 리스크 분석 엔진의 결과값, 위험 요인(Feature Importance) 데이터',
+                        dev: '각 위험 항목을 명확히 리스트업, 원인-데이터-영향 구조의 템플릿 렌더링',
+                        design: '경고성 메시지이나 거부감이 들지 않도록 정돈된 UI 제공',
+                        compliance: 'AI 결과는 참고 정보 제공 목적임을 명시 (금융 판단 강요 및 특정 행동 강제 금지)'
+                    },
+                    renderUI: () => `
+                        <div class="card" style="background:#fee2e2; border-color:#f87171; text-align:center;">
+                            <p style="color:var(--danger); font-size:14px; font-weight:600;">AI Risk Score</p>
+                            <h2 style="color:var(--danger); font-size:32px; margin:4px 0;">78점</h2>
+                        </div>
+                        
+                        <h3 style="font-size:14px; margin:24px 0 16px;">주요 위험 발생 원인</h3>
+                        
+                        <div class="card">
+                            <div class="ai-reason">
+                                <div class="number">1</div>
+                                <div>
+                                    <strong style="font-size:14px;">BNPL 상환 부담 급증</strong>
+                                    <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">
+                                        <strong>데이터 근거:</strong> 네이버, 토스 후불결제 합산 38만원 예정<br>
+                                        <strong>예상 영향:</strong> 15일 결제일 기준 잉여 현금 부족 예상
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="ai-reason">
+                                <div class="number">2</div>
+                                <div>
+                                    <strong style="font-size:14px;">급여 전 카드 결제 집중</strong>
+                                    <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">
+                                        <strong>데이터 근거:</strong> 신용카드 120만원 청구 (급여일 25일 이전)<br>
+                                        <strong>예상 영향:</strong> 일시적인 유동성 위기 가능성 상승
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="ai-reason" style="border:none; padding:0;">
+                                <div class="number" style="background:#fef3c7; color:#b45309;">3</div>
+                                <div>
+                                    <strong style="font-size:14px;">최근 소비 증가 추세</strong>
+                                    <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">
+                                        <strong>데이터 근거:</strong> 전월 동기 대비 지출 15% 증가
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <p style="font-size:11px; color:var(--text-muted); margin-top:20px; text-align:center;">* AI 분석 결과는 금융 의사결정을 위한 참고 자료입니다.</p>
+                    `
+                },
+                {
+                    id: 'c5', title: 'Screen 05. AI Recommendation',
+                    spec: {
+                        objective: '사용자의 금융 행동 개선 지원',
+                        problem: '위험을 인지했으나 당장 어떻게 해야 할지 모름',
+                        functional: '실질적으로 행동할 수 있는 추천(BNPL 조정, 결제 일정 관리 등) 제공 및 [적용하기] 버튼',
+                        data: '사용자 상태에 매핑된 액션 아이템 리스트',
+                        dev: '[적용하기] 클릭 시 시뮬레이션 상태가 전역으로 업데이트 되며, 다음 화면(Report)으로 연결되는 인터랙션 구현',
+                        design: 'Call To Action(행동 유도) 요소 강조',
+                        compliance: '추천 내역에 대출 가입 등 특정 금융상품 판매 유도 배제. 순수 소비/결제 관리 중심.'
+                    },
+                    renderUI: () => `
+                        <p style="font-size:14px; margin-bottom:20px; line-height:1.5;">현재 소비 패턴 유지 시 <strong>급여일 이전 잔액 부족 가능성</strong>이 높습니다. 아래 행동을 추천합니다.</p>
+                        
+                        <div class="card" style="border-left: 4px solid var(--primary);">
+                            <h4 style="font-size:14px; margin-bottom:8px;">1. 추가 BNPL 이용 제한</h4>
+                            <p style="font-size:13px; color:var(--text-muted);">이번 달은 후불결제 대신 체크카드 사용을 권장합니다.</p>
+                        </div>
+                        
+                        <div class="card" style="border-left: 4px solid var(--primary);">
+                            <h4 style="font-size:14px; margin-bottom:8px;">2. 예정되지 않은 소비 20만원 감소</h4>
+                            <p style="font-size:13px; color:var(--text-muted);">외식 및 쇼핑 예산을 축소하여 현금을 확보하세요.</p>
+                        </div>
+                        
+                        <div class="card" style="border-left: 4px solid var(--primary); margin-bottom:30px;">
+                            <h4 style="font-size:14px; margin-bottom:8px;">3. 결제일 전 잔액 확인 알림 설정</h4>
+                            <p style="font-size:13px; color:var(--text-muted);">14일에 잔액 점검 알림을 보내드립니다.</p>
+                        </div>
+
+                        ${state.appliedAction ? 
+                            `<button class="btn success" disabled><i class="fa-solid fa-check"></i> 추천 행동 적용 완료</button>` :
+                            `<button class="btn" onclick="applyRecommendation()">위 행동 계획 적용하기</button>`
+                        }
+                    `
+                },
+                {
+                    id: 'c6', title: 'Screen 06. Financial Health Report',
+                    spec: {
+                        objective: '사용자의 금융 건강 변화 확인 (행동 강화)',
+                        problem: '행동을 바꿨을 때 실제로 얼마나 나아졌는지 피드백이 없음',
+                        functional: 'Before/After Risk Score 비교, 개선 결과 AI 메시지 제공',
+                        data: '이전 상태 점수, 시뮬레이션/적용 후 점수',
+                        dev: '상태 변화 캐싱 후 비교 시각화',
+                        design: '긍정적인 피드백 시각화(초록색 톤, 체크 아이콘 등)를 통해 달성감 부여',
+                        compliance: '개선 효과를 확정적 수익이나 완벽한 위험 제거로 과장하지 않음'
+                    },
+                    renderUI: () => `
+                        <div style="text-align:center; padding: 20px 0;">
+                            <i class="fa-solid fa-shield-heart" style="font-size:48px; color:var(--success); margin-bottom:16px;"></i>
+                            <h2 style="font-size:18px; margin-bottom:8px;">금융 건강이 개선되었습니다!</h2>
+                            <p style="font-size:14px; color:var(--text-muted); line-height:1.5; padding: 0 10px;">"BNPL 부담 감소 및 지출 조정 계획으로 예상 현금 부족 가능성이 크게 낮아졌습니다."</p>
+                        </div>
+
+                        <div class="card" style="background:#f0fdf4; border-color:#bbf7d0; margin-top:20px;">
+                            <div style="display:flex; justify-content:space-around; align-items:center;">
+                                <div style="text-align:center;">
+                                    <p style="font-size:12px; color:var(--text-muted);">Before</p>
+                                    <h3 style="font-size:24px; color:var(--danger); text-decoration: line-through;">78점</h3>
+                                </div>
+                                <i class="fa-solid fa-arrow-right" style="color:#94a3b8;"></i>
+                                <div style="text-align:center;">
+                                    <p style="font-size:12px; color:var(--text-muted);">After</p>
+                                    <h3 style="font-size:32px; color:var(--success);">68점</h3>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                }
+            ],
+            admin: [
+                {
+                    id: 'a1', title: 'Screen 01. Service Operation Dashboard',
+                    spec: {
+                        objective: '서비스 운영 현황 확인',
+                        problem: 'PM/운영자가 전체 서비스 지표를 한눈에 모니터링 필요',
+                        functional: '전체 사용자, 분석 실행 수, 활성 사용자, 위험 사용자 비율 등 핵심 KPI 대시보드. 일별 이용 추이 차트 제공',
+                        data: '서비스 DB 통계 데이터 집계',
+                        dev: '관리자 전용 대시보드 레이아웃(넓은 화면), Chart.js 활용',
+                        design: '데이터 밀도 높은 B2B 대시보드 형태',
+                        compliance: '-'
+                    },
+                    renderUI: () => `
+                        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:16px; margin-bottom:24px;">
+                            <div class="card">
+                                <div style="font-size:13px; color:var(--text-muted);">전체 사용자</div>
+                                <div style="font-size:24px; font-weight:700; margin-top:8px;">12,450</div>
+                            </div>
+                            <div class="card">
+                                <div style="font-size:13px; color:var(--text-muted);">금일 분석 실행</div>
+                                <div style="font-size:24px; font-weight:700; margin-top:8px;">3,210</div>
+                            </div>
+                            <div class="card">
+                                <div style="font-size:13px; color:var(--text-muted);">Risk 주의 단계 비율</div>
+                                <div style="font-size:24px; font-weight:700; margin-top:8px; color:var(--danger);">18.5%</div>
+                            </div>
+                            <div class="card">
+                                <div style="font-size:13px; color:var(--text-muted);">추천 행동 전환율</div>
+                                <div style="font-size:24px; font-weight:700; margin-top:8px; color:var(--success);">32.1%</div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3 style="font-size:16px; margin-bottom:16px;">일별 분석 실행 추이</h3>
+                            <canvas id="adminChart" width="100" height="30"></canvas>
+                        </div>
+                    `
+                },
+                {
+                    id: 'a2', title: 'Screen 02. Data Connection Monitoring',
+                    spec: {
+                        objective: '사용자가 동의한 금융 데이터 연결 상태 관리',
+                        problem: '스크래핑 오류나 인증 만료로 데이터 업데이트가 안되는 유저 발생',
+                        functional: '플랫폼별(특히 BNPL) 연결 성공률, 오류 현황 모니터링 테이블. (API 관리가 아닌 사용자 동의 기반 연결 상태 관리)',
+                        data: '데이터 수집 모듈의 상태 로그',
+                        dev: '테이블 UI 렌더링, 상태값에 따른 뱃지 처리',
+                        design: '이슈 발생 항목을 빠르게 식별할 수 있도록 색상 대비 활용',
+                        compliance: '개인정보 보호를 위해 특정 유저 식별 정보 노출 최소화 (통계 위주 모니터링)'
+                    },
+                    renderUI: () => `
+                        <div class="card">
+                            <h3 style="font-size:16px; margin-bottom:16px;">BNPL 플랫폼 연결 상태 현황</h3>
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>플랫폼</th>
+                                        <th>연결 사용자 수</th>
+                                        <th>상태</th>
+                                        <th>최근 오류율</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>네이버페이 후불결제</strong></td>
+                                        <td>8,230</td>
+                                        <td><span class="badge success">정상</span></td>
+                                        <td>0.5%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>토스 후불결제</strong></td>
+                                        <td>6,100</td>
+                                        <td><span class="badge warning">업데이트 지연</span></td>
+                                        <td style="color:var(--warning);">4.2%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>카카오페이 후불결제</strong></td>
+                                        <td>4,500</td>
+                                        <td><span class="badge success">정상</span></td>
+                                        <td>0.8%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `
+                },
+                {
+                    id: 'a3', title: 'Screen 03. AI Analysis Monitoring',
+                    spec: {
+                        objective: 'AI 리스크 스코어링 모델 모니터링',
+                        problem: '모델이 지나치게 높거나 낮은 점수를 남발하는지 파악 필요',
+                        functional: '모델 버전 표시, Risk Score 분포 현황 확인',
+                        data: 'AI 추론 결과 히스토리 DB',
+                        dev: '분포도 차트 (Bar chart) 렌더링',
+                        design: '데이터 분석가/운영자가 직관적으로 분포 이상을 감지할 수 있는 차트 레이아웃',
+                        compliance: '모델 검증 이력 관리 목적'
+                    },
+                    renderUI: () => `
+                        <div class="flex-between" style="margin-bottom:20px;">
+                            <div>
+                                <h3 style="font-size:16px;">AI 모델 현황</h3>
+                                <p style="font-size:13px; color:var(--text-muted);">Model: v2.1.0 (Updated: 2026-07-01)</p>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3 style="font-size:14px; margin-bottom:16px;">Risk Score 분포도 (최근 7일)</h3>
+                            <canvas id="scoreDistChart" width="100" height="40"></canvas>
+                        </div>
+                    `
+                },
+                {
+                    id: 'a4', title: 'Screen 04. User Consent & Compliance',
+                    spec: {
+                        objective: '금융 데이터 보호 및 규제 대응',
+                        problem: '정보 제공 동의, 철회 이력 및 접근 로그 감사(Audit) 대응 필요',
+                        functional: '동의 현황, 철회 기록, 분석 기록 등 컴플라이언스 중심 로깅 화면',
+                        data: '시스템 감사(Audit) 로그, 동의 이력 테이블',
+                        dev: '검색 필터 및 페이징 처리된 테이블 레이아웃 구현',
+                        design: '정보의 투명성과 접근성을 강조한 건조한 관리자 UI',
+                        compliance: '금융보안원 및 개인정보보호법 감사 요구사항 충족을 위한 필수 화면'
+                    },
+                    renderUI: () => `
+                        <div class="card">
+                            <h3 style="font-size:16px; margin-bottom:16px;">최근 데이터 접근 로그 (Compliance Audit)</h3>
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>일시</th>
+                                        <th>유저(Masked)</th>
+                                        <th>액션</th>
+                                        <th>대상 데이터</th>
+                                        <th>상태</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2026-07-30 17:52:10</td>
+                                        <td>user_****89a</td>
+                                        <td>데이터 연결 동의</td>
+                                        <td>네이버페이 BNPL</td>
+                                        <td><span class="badge success">완료</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-07-30 17:50:05</td>
+                                        <td>user_****22b</td>
+                                        <td>위험 분석 수행</td>
+                                        <td>전체 계좌/결제내역</td>
+                                        <td><span class="badge success">완료</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-07-30 17:45:12</td>
+                                        <td>user_****c11</td>
+                                        <td>동의 철회</td>
+                                        <td>토스 BNPL</td>
+                                        <td><span class="badge warning">처리됨</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `
+                },
+                {
+                    id: 'a5', title: 'Screen 05. Risk Alert Management',
+                    spec: {
+                        objective: '서비스 품질 및 CS 이슈 관리',
+                        problem: 'AI 분석 결과에 대한 사용자 불만(예: 잘못된 분석) 즉각 대응 필요',
+                        functional: '위험 알림 발생 현황, 유저 피드백(신고) 리스트 확인',
+                        data: '고객 센터 연동 데이터, AI 피드백 시스템 데이터',
+                        dev: '이슈 리스트업 및 상태 변경 기능 레이아웃',
+                        design: 'CS 담당자가 빠르게 처리해야 할 티켓을 인지하도록 하이라이트',
+                        compliance: '금융소비자보호법 기반 민원 처리 기록 관리'
+                    },
+                    renderUI: () => `
+                        <div class="card">
+                            <h3 style="font-size:16px; margin-bottom:16px;">분석 피드백 및 신고 접수</h3>
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>접수일</th>
+                                        <th>유형</th>
+                                        <th>내용 요약</th>
+                                        <th>처리 상태</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>07-30</td>
+                                        <td><span class="badge danger">분석 오류 신고</span></td>
+                                        <td>상환 완료한 BNPL 대금이 위험 요인으로 뜸</td>
+                                        <td><span style="color:var(--danger); font-weight:bold;">대기중</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>07-29</td>
+                                        <td><span class="badge warning">결과 문의</span></td>
+                                        <td>점수가 갑자기 20점 하락한 이유 문의</td>
+                                        <td>완료</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `
+                }
+            ]
+        };
+
+        // --- App State ---
+        let state = {
+            view: 'customer', // 'customer' or 'admin'
+            activeScreenId: 'c1',
+            bnpl: { naver: false, toss: false },
+            appliedAction: false,
+            simulated: false,
+            chartInstances: {}
+        };
+
+        // --- Render Functions ---
+
+        function init() {
+            renderNav();
+            renderScreen();
+        }
+
+        function switchView(view) {
+            state.view = view;
+            state.activeScreenId = view === 'customer' ? 'c1' : 'a1';
+            
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const device = document.getElementById('device');
+            if (view === 'admin') {
+                device.classList.add('admin-mode');
+            } else {
+                device.classList.remove('admin-mode');
+            }
+
+            renderNav();
+            renderScreen();
+        }
+
+        function renderNav() {
+            const container = document.getElementById('nav-container');
+            const dataList = PRD_DATA[state.view];
+            
+            let html = `<div class="nav-section-title">${state.view === 'customer' ? 'Customer Screens' : 'Admin Screens'}</div><ul class="nav-list">`;
+            
+            dataList.forEach(item => {
+                const isActive = item.id === state.activeScreenId ? 'active' : '';
+                html += `<li class="nav-item ${isActive}" onclick="loadScreen('${item.id}')">${item.title.split('. ')[1]}</li>`;
+            });
+            
+            html += `</ul>`;
+            container.innerHTML = html;
+        }
+
+        function loadScreen(id) {
+            state.activeScreenId = id;
+            renderNav();
+            renderScreen();
+        }
+
+        function renderScreen() {
+            destroyCharts(); // Clear previous charts before rendering new HTML
+
+            const dataList = PRD_DATA[state.view];
+            const screenData = dataList.find(s => s.id === state.activeScreenId);
+
+            // Render UI Panel
+            document.getElementById('ui-title').innerText = screenData.title;
+            const uiBody = document.getElementById('ui-body');
+            uiBody.innerHTML = screenData.renderUI();
+            
+            // Re-trigger CSS animation
+            uiBody.classList.remove('fade-in');
+            void uiBody.offsetWidth; // trigger reflow
+            uiBody.classList.add('fade-in');
+
+            // Render Spec Panel
+            document.getElementById('spec-title').innerText = screenData.title;
+            const spec = screenData.spec;
+            document.getElementById('spec-content').innerHTML = `
+                <div class="spec-section">
+                    <h3><i class="fa-solid fa-bullseye"></i> 1. Screen Objective</h3>
+                    <p>${spec.objective}</p>
+                </div>
+                <div class="spec-section">
+                    <h3><i class="fa-solid fa-user-xmark"></i> 2. User Problem</h3>
+                    <p>${spec.problem}</p>
+                </div>
+                <div class="spec-section">
+                    <h3><i class="fa-solid fa-gear"></i> 3. Functional Requirements</h3>
+                    <p>${spec.functional}</p>
+                </div>
+                <div class="spec-section">
+                    <h3><i class="fa-solid fa-database"></i> 4. Data Requirement</h3>
+                    <p>${spec.data}</p>
+                </div>
+                <div class="spec-section">
+                    <h3><i class="fa-solid fa-code"></i> 5. Development Consideration</h3>
+                    <p>${spec.dev}</p>
+                </div>
+                <div class="spec-section">
+                    <h3><i class="fa-solid fa-pen-nib"></i> 6. Design Consideration</h3>
+                    <p>${spec.design}</p>
+                </div>
+                <div class="spec-section">
+                    <h3><i class="fa-solid fa-scale-balanced"></i> 7. Compliance Consideration</h3>
+                    <p>${spec.compliance}</p>
+                </div>
+            `;
+
+            // Initialize charts if elements exist in the newly rendered HTML
+            initCharts();
+        }
+
+        // --- Interactions & Logics ---
+
+        function toggleConnect(provider) {
+            const loading = document.getElementById('loading');
+            document.getElementById('loading-text').innerText = "연결 중...";
+            loading.style.display = 'flex';
+            
+            setTimeout(() => {
+                state.bnpl[provider] = !state.bnpl[provider];
+                loading.style.display = 'none';
+                renderScreen();
+            }, 600);
+        }
+
+        function simulateCashflow(doSimulate) {
+            state.simulated = doSimulate;
+            renderScreen();
+        }
+
+        function applyRecommendation() {
+            const loading = document.getElementById('loading');
+            document.getElementById('loading-text').innerText = "계획 적용 및 분석 재실행 중...";
+            loading.style.display = 'flex';
+            
+            setTimeout(() => {
+                state.appliedAction = true;
+                loading.style.display = 'none';
+                loadScreen('c6'); // Move to report
+            }, 1000);
+        }
+
+        // --- Chart.js Integrations ---
+        
+        function destroyCharts() {
+            for (let id in state.chartInstances) {
+                if (state.chartInstances[id]) {
+                    state.chartInstances[id].destroy();
+                }
+            }
+            state.chartInstances = {};
+        }
+
+        function initCharts() {
+            // Customer Screen 3 Chart
+            const cashflowCtx = document.getElementById('cashflowChart');
+            if (cashflowCtx) {
+                const isSimulated = state.simulated;
+                const dataCurrent = [180, 150, 100, 50, 20, 65]; // Base scenario (10k KRW)
+                const dataSimulated = [180, 150, 120, 90, 70, 85]; // Adjusted scenario
+                
+                state.chartInstances['cashflow'] = new Chart(cashflowCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['1일', '10일', '15일(BNPL)', '20일', '25일(카드)', '말일'],
+                        datasets: [{
+                            label: '예상 잔액',
+                            data: isSimulated ? dataSimulated : dataCurrent,
+                            borderColor: isSimulated ? '#10b981' : '#ef4444',
+                            backgroundColor: isSimulated ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true } }
+                    }
+                });
+            }
+
+            // Admin Screen 1 Chart
+            const adminCtx = document.getElementById('adminChart');
+            if (adminCtx) {
+                state.chartInstances['adminLine'] = new Chart(adminCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['07-24', '07-25', '07-26', '07-27', '07-28', '07-29', '07-30'],
+                        datasets: [{
+                            label: '분석 실행 수',
+                            data: [2100, 2400, 2200, 2800, 2950, 3100, 3210],
+                            borderColor: '#2563eb',
+                            tension: 0.3
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+            }
+
+            // Admin Screen 3 Chart
+            const scoreCtx = document.getElementById('scoreDistChart');
+            if (scoreCtx) {
+                state.chartInstances['adminBar'] = new Chart(scoreCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['0-20(안전)', '21-40', '41-60', '61-80(주의)', '81-100(위험)'],
+                        datasets: [{
+                            label: '유저 수',
+                            data: [4500, 3200, 2100, 1800, 500],
+                            backgroundColor: ['#10b981', '#6ee7b7', '#fcd34d', '#fbbf24', '#ef4444']
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+            }
+        }
+
+        // Initialize App
+        window.onload = init;
+
+    </script>
+</body>
+</html>
