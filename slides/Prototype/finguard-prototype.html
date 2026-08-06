@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FinGuard 프로토타입 · 미래 금융 부담 분석</title>
+<style>
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R4 V5
+ * Hallmark · genre: modern-minimal · macrostructure: Workbench · nav: N9 edge-aligned minimal · footer: Ft2 inline single line
+ * theme: custom (tuned) · vibe: "핀테크 앱 · 깔끔 · 친근 · 큰 숫자"
+ *   paper  oklch(96.5% 0.003 250) · accent oklch(56% 0.185 259) cool
+ *   type   Pretendard (single-family — genre-sanctioned modern-minimal discipline) · numerals tabular
+ *   axes   paper-band: light · display-style: geometric-sans · accent-hue: cool
+ * enrichment: Tier-B hand-built SVG — 20-glyph 24px line set (1.7 stroke) + cash-flow chart. No photos, no emoji.
+ * motion: 2 primitives — screen-enter · press-feedback. Collapses under prefers-reduced-motion.
+ * chrome: no device bezel / notch / fake status bar (gate 47) — screens sit in a hairline <figure>.
+ * slop test: contrast pass (40–41) · nav/footer/hero pass (42–45) · honest pass (46) · chrome pass (47)
+ *            tokens pass (48) · responsive pass (49) · icons pass (30) · mobile pass (34, 49, 50–57)
+ *            gate 24 — 4pt scale holds for all rhythm spacing; 1–2px optical nudges on icon/label
+ *            baselines are a declared deviation (rounding them to 4px misaligns the glyphs).
+ *            gate 25 — measure is ~23–30 CJK chars/line (Korean optimum); the 45–75ch rule is Latin-set.
+ * tokens mirrored in ./tokens.css
+ */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
+
+:root{
+  --color-paper:oklch(96.5% 0.003 250);
+  --color-surface:oklch(99.4% 0.004 250);
+  --color-surface-2:oklch(97.4% 0.004 250);
+  --color-surface-3:oklch(95.4% 0.005 252);
+  --color-ink:oklch(24% 0.018 264);
+  --color-ink-2:oklch(46% 0.020 258);
+  --color-ink-3:oklch(58% 0.017 254);
+  --color-ink-4:oklch(72% 0.012 252);
+  --color-line:oklch(92.4% 0.005 252);
+  --color-line-soft:oklch(95.2% 0.004 252);
+  --color-accent:oklch(56% 0.185 259);
+  --color-accent-strong:oklch(49% 0.170 259);
+  --color-accent-weak:oklch(95.6% 0.026 259);
+  --color-accent-line:oklch(88% 0.055 259);
+  --color-accent-ink:oklch(99.4% 0.004 250);   /* accent 면 위의 글자/아이콘 — 대비 5.0:1 */
+  --color-danger:oklch(56% 0.190 22);
+  --color-danger-weak:oklch(95.4% 0.028 22);
+  --color-warn:oklch(54% 0.130 62);
+  --color-warn-weak:oklch(96% 0.035 70);
+  --color-ok:oklch(54% 0.130 158);
+  --color-ok-weak:oklch(95.4% 0.032 158);
+  --color-focus:oklch(56% 0.185 259);
+  --color-scrim:oklch(24% 0.018 264 / .42);
+
+  --font-display:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",system-ui,sans-serif;
+  --font-body:var(--font-display);
+
+  --text-2xs:.6875rem; --text-xs:.75rem; --text-sm:.8125rem; --text-md:.9375rem;
+  --text-lg:1.0625rem; --text-xl:1.25rem; --text-2xl:1.5rem; --text-3xl:1.875rem; --text-display:2.25rem;
+
+  --space-2xs:.25rem; --space-xs:.5rem; --space-sm:.75rem; --space-md:1rem;
+  --space-lg:1.25rem; --space-xl:1.5rem; --space-2xl:2rem; --space-3xl:2.5rem;
+
+  --radius-xs:6px; --radius-sm:10px; --radius-md:14px; --radius-lg:18px;
+  --radius-xl:22px; --radius-2xl:28px; --radius-pill:999px;
+
+  --rule-hair:1px;
+  --shadow-card:0 1px 2px oklch(24% 0.018 264 / .05);
+  --shadow-lift:0 1px 2px oklch(24% 0.018 264 / .06), 0 18px 40px -26px oklch(24% 0.018 264 / .28);
+  --shadow-dock:0 -12px 20px -18px oklch(24% 0.018 264 / .35);
+
+  --dur-instant:90ms; --dur-short:140ms; --dur-mid:240ms;
+  --ease-out:cubic-bezier(.22,1,.36,1); --ease-in:cubic-bezier(.55,0,1,.45); --ease-in-out:cubic-bezier(.65,0,.35,1);
+
+  --z-sticky:10; --z-dock:20; --z-shell:30; --z-modal:40; --z-toast:50;
+}
+
+/* ── reset ─────────────────────────────────────────────────────────── */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;overflow-x:clip}
+body{
+  overflow-y:hidden;
+  background:var(--color-paper); color:var(--color-ink);
+  font-family:var(--font-body); font-size:var(--text-md); line-height:1.5;
+  font-feature-settings:"tnum" 0; -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+h1,h2,h3,h4,p{margin:0; overflow-wrap:anywhere; min-width:0}
+:focus-visible{outline:2px solid var(--color-focus); outline-offset:2px; border-radius:var(--radius-xs)}
+svg.ico{width:1.25em;height:1.25em;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── shell (viewport-locked · N9 nav + Ft2 status line) ───────────── */
+.shell{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto}
+
+.topbar{
+  display:flex;align-items:center;flex-wrap:wrap;gap:var(--space-xs) var(--space-md);
+  padding:var(--space-sm) var(--space-lg);
+  border-bottom:var(--rule-hair) solid var(--color-line);
+  background:var(--color-surface); z-index:var(--z-shell);
+}
+.mark{display:flex;align-items:center;gap:var(--space-xs);font-weight:800;letter-spacing:-.03em;font-size:var(--text-lg);white-space:nowrap}
+.mark .glyph{width:26px;height:26px;border-radius:var(--radius-xs);background:var(--color-accent);color:var(--color-accent-ink);display:grid;place-items:center}
+.mark .glyph svg{width:15px;height:15px;stroke-width:2}
+.mark .sub{font-size:var(--text-xs);font-weight:600;color:var(--color-ink-3);letter-spacing:0}
+.topbar .gap{flex:1}
+.seg{display:flex;gap:var(--space-2xs);background:var(--color-surface-3);border-radius:var(--radius-sm);padding:var(--space-2xs)}
+.seg button{font-size:var(--text-xs);font-weight:700;color:var(--color-ink-2);padding:0 var(--space-sm);min-height:34px;
+  border-radius:var(--radius-xs);white-space:nowrap;
+  transition:color var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out)}
+.seg button:hover{color:var(--color-ink)}
+.seg button[aria-pressed="true"]{background:var(--color-surface);color:var(--color-ink);box-shadow:var(--shadow-card)}
+.tbtn{font-size:var(--text-xs);font-weight:700;color:var(--color-ink-2);padding:var(--space-xs) var(--space-sm);
+  border-radius:var(--radius-sm);white-space:nowrap;
+  transition:background-color var(--dur-short) var(--ease-out)}
+.tbtn:hover{background:var(--color-surface-3)}
+.tbtn:active,.iconbtn:active,.linkbtn:active,.chips button:active,.seg button:active{opacity:.72}
+.spec-toggle{display:none}
+
+.work{display:grid;grid-template-columns:236px minmax(0,1fr) 312px;gap:var(--space-lg);
+  padding:var(--space-lg);min-height:0}
+
+/* ── screen index rail ─────────────────────────────────────────────── */
+.rail{min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:var(--space-2xs);padding-right:var(--space-2xs)}
+.rail-h{font-size:var(--text-2xs);font-weight:800;color:var(--color-ink-3);letter-spacing:.04em;padding:var(--space-2xs) var(--space-sm) var(--space-xs)}
+.rail button{display:flex;gap:var(--space-sm);align-items:flex-start;text-align:left;padding:var(--space-sm);border-radius:var(--radius-sm);
+  transition:background-color var(--dur-short) var(--ease-out)}
+.rail button:hover{background:var(--color-surface-2)}
+.rail button[aria-current="true"]{background:var(--color-surface)}
+.rail .n{flex:none;width:20px;height:20px;border-radius:var(--radius-xs);background:var(--color-surface-3);color:var(--color-ink-3);
+  font-size:var(--text-2xs);font-weight:800;display:grid;place-items:center;margin-top:1px}
+.rail button[aria-current="true"] .n{background:var(--color-accent);color:var(--color-accent-ink)}
+.rail .t{font-size:var(--text-sm);font-weight:700;letter-spacing:-.01em;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rail button[aria-current="true"] .t{color:var(--color-accent)}
+.rail .d{font-size:var(--text-2xs);color:var(--color-ink-3);font-weight:500;line-height:1.35;display:block;margin-top:1px}
+
+/* ── stage · the workbench ─────────────────────────────────────────── */
+.stage{min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.device{margin:0;height:100%;max-height:812px;width:min(392px,100%);display:flex;flex-direction:column;
+  border:var(--rule-hair) solid var(--color-line);border-radius:var(--radius-2xl);background:var(--color-paper);
+  box-shadow:var(--shadow-lift);overflow:hidden}
+.app{display:flex;flex-direction:column;height:100%;min-height:0;background:var(--color-paper)}
+
+.gallery{display:none;height:100%;width:100%;gap:var(--space-lg);overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;padding-bottom:var(--space-xs)}
+.gallery.on{display:flex}
+.stage.gallery-mode{display:block}
+.film{flex:none;width:296px;height:100%;display:flex;flex-direction:column;gap:var(--space-xs);scroll-snap-align:start;min-height:0}
+.film figcaption{display:flex;align-items:center;gap:var(--space-xs);font-size:var(--text-xs);font-weight:700;color:var(--color-ink-2);padding-left:2px}
+.film figcaption .n{width:17px;height:17px;border-radius:var(--radius-xs);background:var(--color-accent);color:var(--color-accent-ink);
+  font-size:9px;font-weight:800;display:grid;place-items:center}
+.film .device{height:auto;flex:1;max-height:none;width:100%;border-radius:var(--radius-xl)}
+
+/* ── spec panel ────────────────────────────────────────────────────── */
+.spec{min-height:0;overflow-y:auto;background:var(--color-surface);border-radius:var(--radius-lg);padding:var(--space-lg);box-shadow:var(--shadow-card)}
+.spec h3{font-size:var(--text-md);font-weight:800;letter-spacing:-.02em}
+.spec .lede{font-size:var(--text-xs);color:var(--color-ink-3);margin-top:2px}
+.spec h4{font-size:var(--text-2xs);font-weight:800;color:var(--color-ink-3);letter-spacing:.03em;margin:var(--space-lg) 0 var(--space-xs)}
+.spec ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:var(--space-xs)}
+.spec li{font-size:var(--text-xs);color:var(--color-ink-2);line-height:1.5;padding-left:var(--space-sm);border-left:2px solid var(--color-line)}
+.spec li.acc{border-left-color:var(--color-accent-line)}
+.spec .close{display:none}
+
+/* ── status line (Ft2) ─────────────────────────────────────────────── */
+.statusline{display:flex;align-items:center;gap:var(--space-sm);flex-wrap:wrap;
+  padding:var(--space-sm) var(--space-lg);border-top:var(--rule-hair) solid var(--color-line);
+  background:var(--color-surface);font-size:var(--text-2xs);color:var(--color-ink-3)}
+.statusline .dot{width:3px;height:3px;border-radius:50%;background:var(--color-ink-4);flex:none}
+
+/* ══ app UI ═══════════════════════════════════════════════════════════ */
+.appbar{display:flex;align-items:center;gap:var(--space-xs);padding:var(--space-lg) var(--space-lg) var(--space-sm);
+  background:var(--color-paper);flex:none}
+.apptitle{font-size:var(--text-xl);font-weight:800;letter-spacing:-.035em}
+.appbar .act{margin-left:auto;display:flex;align-items:center;gap:var(--space-2xs);font-size:var(--text-xs);font-weight:700;color:var(--color-ink-3);white-space:nowrap}
+.iconbtn{width:32px;height:32px;border-radius:var(--radius-sm);display:grid;place-items:center;color:var(--color-ink-2);margin-left:-6px;
+  transition:background-color var(--dur-short) var(--ease-out)}
+.iconbtn:hover{background:var(--color-surface-3)}
+.iconbtn svg{width:20px;height:20px}
+.appscroll{flex:1;min-height:0;overflow-y:auto;padding:0 var(--space-lg) var(--space-xl);scrollbar-width:thin}
+.appscroll::-webkit-scrollbar{width:5px}
+.appscroll::-webkit-scrollbar-thumb{background:var(--color-line);border-radius:var(--radius-pill)}
+
+.enter{animation:enter var(--dur-mid) var(--ease-out) both}
+@keyframes enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.lede{font-size:var(--text-md);color:var(--color-ink-2);line-height:1.55}
+.headline{font-size:var(--text-2xl);font-weight:800;letter-spacing:-.035em;line-height:1.32}
+.card{background:var(--color-surface);border-radius:var(--radius-xl);padding:var(--space-lg);box-shadow:var(--shadow-card)}
+.card + .card{margin-top:var(--space-sm)}
+.card.flat{background:var(--color-surface-2);box-shadow:none}
+.card.tint-b{background:var(--color-accent-weak);box-shadow:none}
+.card.tint-g{background:var(--color-ok-weak);box-shadow:none}
+.card.pad-list{padding:var(--space-2xs) var(--space-lg)}
+.sec{display:flex;align-items:baseline;flex-wrap:wrap;gap:var(--space-xs);margin:var(--space-xl) 0 var(--space-sm)}
+.sec h3{font-size:var(--text-lg);font-weight:800;letter-spacing:-.03em}
+.sec .note{margin-left:auto;font-size:var(--text-xs);color:var(--color-ink-3);font-weight:600}
+
+.row{display:flex;align-items:center;gap:var(--space-sm);padding:var(--space-sm) 0;min-height:56px;width:100%;text-align:left}
+.row + .row{border-top:var(--rule-hair) solid var(--color-line-soft)}
+.row .grow{flex:1;min-width:0}
+.row .end{text-align:right;flex:none}
+.tap{transition:transform var(--dur-instant) var(--ease-out)}
+.tap:active{transform:scale(.988)}
+.av{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;flex:none;
+  background:var(--color-surface-3);color:var(--color-ink-2)}
+.av svg{width:20px;height:20px}
+.av.b{background:var(--color-accent-weak);color:var(--color-accent)}
+.av.d{background:var(--color-danger-weak);color:var(--color-danger)}
+.av.w{background:var(--color-warn-weak);color:var(--color-warn)}
+.av.g{background:var(--color-ok-weak);color:var(--color-ok)}
+
+.t-name{display:block;font-size:var(--text-md);font-weight:700;letter-spacing:-.015em}
+.t-sub{display:block;font-size:var(--text-xs);color:var(--color-ink-3);margin-top:1px}
+.num{font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.amt{font-size:var(--text-md);font-weight:700}
+.big{font-size:var(--text-3xl);font-weight:800;letter-spacing:-.04em;line-height:1.1}
+.huge{font-size:var(--text-display);font-weight:800;letter-spacing:-.045em;line-height:1.05}
+.muted{color:var(--color-ink-3)}
+.ink2{color:var(--color-ink-2)}
+.c-b{color:var(--color-accent)} .c-d{color:var(--color-danger)} .c-w{color:var(--color-warn)} .c-g{color:var(--color-ok)}
+.xs{font-size:var(--text-xs)} .sm{font-size:var(--text-sm)}
+.b7{font-weight:700} .b8{font-weight:800}
+.strike{text-decoration:line-through;color:var(--color-ink-3)}
+
+.tag{display:inline-flex;align-items:center;gap:var(--space-2xs);font-size:var(--text-2xs);font-weight:700;
+  padding:var(--space-2xs) var(--space-xs);border-radius:var(--radius-pill);
+  background:var(--color-surface-3);color:var(--color-ink-2);white-space:nowrap}
+.tag.b{background:var(--color-accent-weak);color:var(--color-accent)}
+.tag.d{background:var(--color-danger-weak);color:var(--color-danger)}
+.tag.w{background:var(--color-warn-weak);color:var(--color-warn)}
+.tag.g{background:var(--color-ok-weak);color:var(--color-ok)}
+
+.chips{display:flex;gap:var(--space-xs);overflow-x:auto;padding-bottom:var(--space-2xs);scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;font-size:var(--text-sm);font-weight:700;color:var(--color-ink-2);background:var(--color-surface);
+  padding:0 var(--space-md);min-height:38px;border-radius:var(--radius-pill);white-space:nowrap;
+  transition:background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out)}
+.chips button:hover{color:var(--color-ink)}
+.chips button[aria-pressed="true"]{background:var(--color-ink);color:var(--color-paper)}
+
+.mark-box{width:22px;height:22px;border-radius:var(--radius-xs);border:1.5px solid var(--color-line);flex:none;
+  display:grid;place-items:center;color:var(--color-surface);background:var(--color-surface);
+  transition:background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out)}
+.mark-box.round{border-radius:50%}
+.mark-box svg{width:14px;height:14px;stroke-width:2.6;opacity:0;transition:opacity var(--dur-short) var(--ease-out)}
+.mark-box{color:var(--color-accent-ink)}
+.mark-box.on{background:var(--color-accent);border-color:var(--color-accent)}
+.mark-box.on svg{opacity:1}
+
+.gauge{margin-top:var(--space-md)}
+.gauge-track{display:flex;gap:var(--space-2xs);height:8px}
+.gauge-track i{flex:1;border-radius:var(--radius-pill);background:var(--color-surface-3)}
+.gauge-track i.on-g{background:var(--color-ok)} .gauge-track i.on-w{background:var(--color-warn)} .gauge-track i.on-d{background:var(--color-danger)}
+.gauge-scale{display:flex;justify-content:space-between;font-size:var(--text-2xs);color:var(--color-ink-3);margin-top:var(--space-2xs)}
+.bar{height:6px;border-radius:var(--radius-pill);background:var(--color-surface-3);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:var(--radius-pill);background:var(--color-accent)}
+.bar i.w{background:var(--color-warn)} .bar i.d{background:var(--color-danger)} .bar i.g{background:var(--color-ok)}
+
+.kv{display:flex;justify-content:space-between;align-items:center;gap:var(--space-md);padding:var(--space-xs) 0;font-size:var(--text-sm)}
+.kv + .kv{border-top:var(--rule-hair) solid var(--color-line-soft)}
+.hr{height:var(--rule-hair);background:var(--color-line-soft);margin:var(--space-md) calc(var(--space-lg) * -1)}
+
+.note{display:flex;gap:var(--space-xs);font-size:var(--text-xs);line-height:1.55;color:var(--color-ink-2);
+  background:var(--color-surface-2);border-radius:var(--radius-md);padding:var(--space-sm) var(--space-md);margin-top:var(--space-md)}
+.note svg{width:16px;height:16px;margin-top:1px;color:var(--color-ink-3)}
+.note.warn{background:var(--color-warn-weak);color:var(--color-warn)}
+.note.warn svg{color:var(--color-warn)}
+.note.info{background:var(--color-accent-weak);color:var(--color-accent-strong)}
+.note.info svg{color:var(--color-accent)}
+
+.steps{display:flex;flex-direction:column;gap:var(--space-md)}
+.step{display:flex;gap:var(--space-sm)}
+.step .n{width:22px;height:22px;border-radius:50%;background:var(--color-accent-weak);color:var(--color-accent);
+  font-size:var(--text-2xs);font-weight:800;display:grid;place-items:center;flex:none;margin-top:2px}
+
+.daygroup + .daygroup{margin-top:var(--space-md)}
+.dayhead{font-size:var(--text-xs);font-weight:700;color:var(--color-ink-3);padding:0 0 var(--space-2xs) 2px}
+
+.pick{display:block;width:100%;text-align:left;background:var(--color-surface);border-radius:var(--radius-lg);padding:var(--space-md);
+  box-shadow:var(--shadow-card);margin-top:var(--space-xs);
+  transition:box-shadow var(--dur-short) var(--ease-out), transform var(--dur-instant) var(--ease-out)}
+.pick:active{transform:scale(.99)}
+.pick[aria-pressed="true"]{box-shadow:0 0 0 1.5px var(--color-accent)}
+
+.dock{flex:none;padding:var(--space-sm) var(--space-lg) var(--space-md);background:var(--color-paper);box-shadow:var(--shadow-dock)}
+.stack{display:flex;flex-direction:column;gap:var(--space-xs)}
+.btn{display:flex;align-items:center;justify-content:center;gap:var(--space-xs);width:100%;min-height:56px;padding:0 var(--space-md);
+  border-radius:var(--radius-md);background:var(--color-accent);color:var(--color-accent-ink);
+  font-size:var(--text-lg);font-weight:700;letter-spacing:-.02em;white-space:nowrap;
+  transition:background-color var(--dur-short) var(--ease-out), transform var(--dur-instant) var(--ease-out)}
+.btn:hover{background:var(--color-accent-strong)}
+.btn:active{transform:scale(.985)}
+.btn:disabled{background:var(--color-surface-3);color:var(--color-ink-3);cursor:not-allowed;transform:none}
+.btn.ghost{background:var(--color-surface-3);color:var(--color-ink)}
+.btn.ghost:hover{background:var(--color-line)}
+.btn.quiet{background:transparent;color:var(--color-ink-2);min-height:46px;font-size:var(--text-md);font-weight:600}
+.btn.quiet:hover{background:var(--color-surface-3)}
+.btn.danger{background:transparent;color:var(--color-danger);min-height:48px;font-size:var(--text-md)}
+.btn.danger:hover{background:var(--color-danger-weak)}
+.btn.sm{min-height:52px;font-size:var(--text-md)}
+.linkbtn{font-size:var(--text-sm);font-weight:700;color:var(--color-accent);white-space:nowrap;
+  padding:var(--space-xs) var(--space-2xs);border-radius:var(--radius-xs)}
+.linkbtn:hover{color:var(--color-accent-strong)}
+.linkbtn.d{color:var(--color-danger)}
+
+.tabbar{flex:none;display:flex;background:var(--color-surface);border-top:var(--rule-hair) solid var(--color-line);
+  padding:var(--space-xs) var(--space-2xs) var(--space-sm)}
+.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:var(--space-2xs);padding:var(--space-2xs) 0;
+  font-size:var(--text-2xs);font-weight:700;color:var(--color-ink-3);white-space:nowrap;
+  transition:color var(--dur-short) var(--ease-out)}
+.tabbar button svg{width:21px;height:21px}
+.tabbar button[aria-current="true"]{color:var(--color-accent)}
+
+/* charts */
+.chart{display:block;width:100%}
+.cf-line{fill:none;stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
+.cf-pos{stroke:var(--color-accent)}
+.cf-neg{stroke:var(--color-danger)}
+.cf-prev{fill:none;stroke:var(--color-ink-3);stroke-width:1.8;stroke-dasharray:4 3}
+.cf-zero{stroke:var(--color-ink-4);stroke-width:1}
+.cf-pay{stroke:var(--color-ok);stroke-width:1;stroke-dasharray:3 3;opacity:.6}
+.cf-tick{fill:var(--color-ink-3);font-size:9px;font-family:var(--font-body)}
+.cf-fill-pos-a{stop-color:var(--color-accent);stop-opacity:.26}
+.cf-fill-pos-b{stop-color:var(--color-accent);stop-opacity:.02}
+.cf-fill-neg-a{stop-color:var(--color-danger);stop-opacity:.05}
+.cf-fill-neg-b{stop-color:var(--color-danger);stop-opacity:.26}
+.legend{display:flex;gap:var(--space-md);flex-wrap:wrap;font-size:var(--text-2xs);color:var(--color-ink-3);margin-top:var(--space-xs)}
+.legend span{display:flex;align-items:center;gap:var(--space-2xs)}
+.legend i{width:12px;height:3px;border-radius:var(--radius-pill);display:block;background:var(--color-ink-3)}
+.legend i.b{background:var(--color-accent)} .legend i.d{background:var(--color-danger)} .legend i.g{background:var(--color-ok)}
+.mbars{display:flex;gap:var(--space-sm);align-items:flex-end;height:112px;padding-top:var(--space-xs)}
+.mbar{flex:1;text-align:center;display:flex;flex-direction:column;justify-content:flex-end;gap:var(--space-2xs)}
+.mbar .col{border-radius:var(--radius-xs) var(--radius-xs) 3px 3px;background:var(--color-accent)}
+.mbar .col.est{background:var(--color-accent-line)}
+
+/* modal + toast */
+.scrim{position:fixed;inset:0;background:var(--color-scrim);display:grid;place-items:end center;z-index:var(--z-modal);padding:var(--space-md)}
+.sheet{background:var(--color-surface);border-radius:var(--radius-xl);width:100%;max-width:380px;padding:var(--space-xl);
+  box-shadow:var(--shadow-lift);max-height:88dvh;overflow-y:auto;
+  animation:sheet var(--dur-mid) var(--ease-out) both}
+@keyframes sheet{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.sheet h3{font-size:var(--text-xl);font-weight:800;letter-spacing:-.03em}
+.field{margin-top:var(--space-md)}
+.field label{display:block;font-size:var(--text-xs);font-weight:700;color:var(--color-ink-2);margin-bottom:var(--space-xs)}
+.field input{width:100%;min-height:52px;background:var(--color-surface-2);
+  border:var(--rule-hair) solid var(--color-line);outline:2px solid transparent;outline-offset:1px;
+  border-radius:var(--radius-md);padding:var(--space-sm) var(--space-md);
+  font-size:var(--text-lg);font-weight:600;color:var(--color-ink);
+  transition:border-color var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out)}
+.field input::placeholder{color:var(--color-ink-3);font-weight:500}
+.field input:hover{border-color:var(--color-ink-4)}
+.field input:focus{outline-color:var(--color-focus);background:var(--color-surface)}
+.field input:disabled{opacity:.55;cursor:not-allowed}
+.toast{position:fixed;left:50%;bottom:var(--space-3xl);transform:translateX(-50%);background:var(--color-ink);color:var(--color-paper);
+  font-size:var(--text-sm);font-weight:700;padding:var(--space-sm) var(--space-lg);border-radius:var(--radius-md);z-index:var(--z-toast);
+  box-shadow:var(--shadow-lift);max-width:min(340px,90vw);text-align:center}
+.hidden{display:none !important}
+
+/* ── responsive ────────────────────────────────────────────────────── */
+@media (max-width:1120px){
+  .work{grid-template-columns:210px minmax(0,1fr)}
+  .spec-toggle{display:inline-flex}
+  .spec{position:fixed;inset:auto 0 0 0;z-index:var(--z-modal);border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+    max-height:76dvh;box-shadow:var(--shadow-lift);display:none}
+  .spec.open{display:block}
+  .spec .close{display:flex;position:absolute;top:var(--space-md);right:var(--space-md);width:32px;height:32px;
+    border-radius:var(--radius-sm);align-items:center;justify-content:center;color:var(--color-ink-2);background:var(--color-surface-3)}
+}
+@media (max-width:880px){
+  .work{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);gap:var(--space-sm);padding:var(--space-sm)}
+  .rail{flex-direction:row;overflow-x:auto;overflow-y:hidden;gap:var(--space-xs);padding-bottom:var(--space-2xs);scrollbar-width:none}
+  .rail::-webkit-scrollbar{display:none}
+  .rail-h{display:none}
+  .rail button{flex:none;align-items:center;padding:8px 12px;background:var(--color-surface);border-radius:var(--radius-pill)}
+  .rail .d{display:none}
+  .rail .t{white-space:nowrap}
+  .device{max-height:none;border-radius:var(--radius-xl)}
+}
+@media (max-width:560px){
+  .topbar{padding:var(--space-xs) var(--space-md);gap:var(--space-2xs) var(--space-xs)}
+  .mark{font-size:var(--text-md)}
+  .mark .sub{display:none}
+  .topbar .gap{display:none}
+  .seg{margin-left:auto;padding:2px}
+  .seg button{padding:0 10px;min-height:44px}
+  .tbtn{min-height:44px;padding:0 10px}
+  .statusline{padding:var(--space-xs) var(--space-md)}
+  .statusline .fold{display:none}
+  .device{width:100%;border:0;border-radius:var(--radius-lg);box-shadow:var(--shadow-card)}
+  .film{width:260px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+  .enter,.sheet{animation:fade 120ms linear both}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- N9 · edge-aligned minimal: wordmark hard-left, control cluster hard-right, no link row -->
+  <header class="topbar">
+    <div class="mark">
+      <span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 20 6v6c0 5-4 8-8 9-4-1-8-4-8-9V6z"/></svg></span>
+      FinGuard<span class="sub">프로토타입</span>
+    </div>
+    <div class="gap"></div>
+    <div class="seg" id="viewSeg">
+      <button data-view="single" aria-pressed="true">한 화면</button>
+      <button data-view="gallery" aria-pressed="false">전체 흐름</button>
+    </div>
+    <button class="tbtn spec-toggle" data-act="openSpec">PRD 근거</button>
+    <button class="tbtn" data-act="reset">초기화</button>
+  </header>
+
+  <div class="work">
+    <nav class="rail" id="rail" aria-label="화면 목록"></nav>
+
+    <div class="stage" id="stage">
+      <figure class="device" id="device"></figure>
+      <div class="gallery" id="gallery"></div>
+    </div>
+
+    <aside class="spec" id="spec" aria-label="PRD 근거"></aside>
+  </div>
+
+  <footer class="statusline">
+    <span>FinGuard 프로토타입 · FinGuard PRD 기반</span>
+    <span class="dot"></span>
+    <span>화면의 금액·기관·분석 결과는 모두 가상의 샘플 데이터예요</span>
+    <span class="dot fold"></span>
+    <span class="fold">금융상품을 권유하지 않으며, 최종 금융 결정은 사용자가 합니다</span>
+  </footer>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+/* ═════════════════════════════════════════════════════════════════════
+   1 · 아이콘 — 손으로 그린 24px 라인 세트 (stroke 1.7, 한 가지 목소리)
+   ═════════════════════════════════════════════════════════════════════ */
+const ICON = {
+  card:    '<rect x="3" y="6" width="18" height="12" rx="3"/><path d="M3 10.5h18"/>',
+  receipt: '<path d="M6 3h12v18l-3-1.8L12 21l-3-1.8L6 21z"/><path d="M9.5 8.5h5M9.5 12.5h5"/>',
+  bank:    '<path d="M3.5 10 12 4.5 20.5 10"/><path d="M6 10.5v7.5M10 10.5v7.5M14 10.5v7.5M18 10.5v7.5"/><path d="M3.5 20h17"/>',
+  home:    '<path d="M4 11 12 4.5 20 11"/><path d="M6.5 10v9.5h11V10"/>',
+  wallet:  '<path d="M20 8V6.5a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 0 4 6v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5"/><path d="M20.5 8.5h-4a3.5 3.5 0 0 0 0 7h4z"/>',
+  calendar:'<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>',
+  shield:  '<path d="M12 3 20 6v6c0 5-4 8-8 9-4-1-8-4-8-9V6z"/><path d="M9 12.2l2 2 4-4"/>',
+  bulb:    '<path d="M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z"/><path d="M9.5 19h5M10.5 21.5h3"/>',
+  alert:   '<path d="M12 4.5 21.5 20.5H2.5z"/><path d="M12 10.5v4M12 17.6h.01"/>',
+  check:   '<path d="M20 6.5 9.5 17 4 11.5"/>',
+  close:   '<path d="M6 6l12 12M18 6 6 18"/>',
+  plus:    '<path d="M12 5v14M5 12h14"/>',
+  right:   '<path d="M9 5.5 15.5 12 9 18.5"/>',
+  left:    '<path d="M15 5.5 8.5 12 15 18.5"/>',
+  arrow:   '<path d="M4.5 12h14M13 6.5 19 12l-6 5.5"/>',
+  flag:    '<path d="M5.5 21V4h12l-2.5 4L17.5 12h-12"/>',
+  sliders: '<path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="8" cy="17" r="2"/>',
+  unlink:  '<path d="M5 7.5h14M9.5 7.5V5h5v2.5"/><path d="M7 7.5 8 20h8l1-12.5"/>',
+  target:  '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/>',
+  chart:   '<path d="M3.5 20.5h17"/><path d="M6.5 20.5V13M11.5 20.5V6M16.5 20.5v-5.5"/>',
+  scissors:'<circle cx="6.5" cy="6.5" r="2.5"/><circle cx="6.5" cy="17.5" r="2.5"/><path d="M8.7 8.2 19 18.5M19 5.5 8.7 15.8"/>',
+  ban:     '<circle cx="12" cy="12" r="8.5"/><path d="M6 18 18 6"/>',
+  clock:   '<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5.3l3.2 2"/>',
+  doc:     '<path d="M6 3.5h8l4.5 4.5v12.5H6z"/><path d="M13.8 3.5V8h4.5"/><path d="M9 13h6M9 16.5h4"/>',
+  book:    '<path d="M4 5.5A2 2 0 0 1 6 3.5h13v14H6a2 2 0 0 0-2 2z"/><path d="M4 19.5a2 2 0 0 1 2-2h13v3H6a2 2 0 0 1-2-1z"/>',
+  lock:    '<rect x="4.5" y="10" width="15" height="10.5" rx="3"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/>'
+};
+function ic(name){ return `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICON[name] || ""}</svg>`; }
+
+/* ═════════════════════════════════════════════════════════════════════
+   2 · 데모 데이터
+   ═════════════════════════════════════════════════════════════════════ */
+const USER = "민서";
+const MONTH = 8, DAYS = 31;
+const START_BALANCE = 1840000;
+const INCOME = { day:25, amount:3200000, name:"급여 입금", src:"국민은행 입출금" };
+const BASE_DAILY = 15000, CAP_DAILY = 11000;
+const NEW_BNPL_AVG = 297000;
+
+const CATS = {
+  card : { name:"카드",   ico:"card",    tone:"b" },
+  bnpl : { name:"BNPL",  ico:"receipt", tone:"w" },
+  loan : { name:"대출",   ico:"bank",    tone:"" },
+  fixed: { name:"고정비", ico:"home",    tone:"g" }
+};
+
+const BASE_ITEMS = [
+  { id:"rent",  cat:"fixed", name:"월세",                 desc:"자동이체 · 하나은행",          day:1,  amount:600000 },
+  { id:"bnpl1", cat:"bnpl",  name:"A쇼핑 분할결제",         desc:"3개월 중 2회차 · 잔여 1회",     day:5,  amount:89000  },
+  { id:"subs",  cat:"fixed", name:"구독 3건",              desc:"OTT · 음악 · 클라우드",        day:8,  amount:34900  },
+  { id:"tel",   cat:"fixed", name:"통신비",                desc:"자동이체",                    day:10, amount:68000  },
+  { id:"bnpl2", cat:"bnpl",  name:"B전자 분할결제",         desc:"4개월 중 1회차 · 잔여 3회",     day:12, amount:132000 },
+  { id:"card",  cat:"card",  name:"신한카드 결제",          desc:"7월 사용분 · 금액 확정",        day:14, amount:1180000 },
+  { id:"ins",   cat:"fixed", name:"보험료",                desc:"자동이체",                    day:15, amount:92000  },
+  { id:"loan",  cat:"loan",  name:"신용대출 원리금",         desc:"36회 중 11회차 · 잔액 1,120만", day:17, amount:412000 },
+  { id:"bnpl3", cat:"bnpl",  name:"C마트 분할결제",         desc:"2개월 중 2회차 · 마지막",       day:20, amount:76000  }
+];
+
+const INSTITUTIONS = [
+  { id:"shinhan", name:"신한카드",  type:"카드",  ico:"card",    cnt:"결제 예정 1건 · 승인내역 42건" },
+  { id:"kb",      name:"국민은행",  type:"은행",  ico:"bank",    cnt:"입출금 1건 · 자동이체 4건" },
+  { id:"toss",    name:"토스 BNPL", type:"BNPL", ico:"receipt", cnt:"진행 중 분할결제 3건" },
+  { id:"woori",   name:"우리은행",  type:"대출",  ico:"doc",     cnt:"신용대출 1건" },
+  { id:"hana",    name:"하나은행",  type:"은행",  ico:"bank",    cnt:"자동이체 2건" }
+];
+
+const CONSENTS = [
+  { id:"c1", req:true,  t:"금융 데이터 조회·분석 이용", d:"카드·BNPL·대출·입출금 내역을 미래 부담 분석에만 써요." },
+  { id:"c2", req:true,  t:"개인(신용)정보 수집·이용",   d:"연결을 해제하면 바로 파기해요. 저장·전송할 때 모두 암호화해요." },
+  { id:"c3", req:false, t:"분석 개선을 위한 통계 활용",  d:"선택이에요. 동의하지 않아도 모든 기능을 그대로 쓸 수 있어요." }
+];
+
+const ACTIONS = [
+  { id:"cardShift", ico:"calendar", tone:"b",
+    title:"카드 결제일을 14일 → 26일로 옮기기",
+    desc:"월급이 들어온 뒤로 결제일을 옮기면 8월에 잔액이 모자라는 구간이 사라져요.",
+    how:"신한카드 앱에서 직접 신청", effect:"부족한 날 11일 → 0일" },
+  { id:"cutSubs", ico:"scissors", tone:"g",
+    title:"안 쓰는 구독 3건 정리하기",
+    desc:"최근 60일 동안 이용 기록이 없는 정기결제예요. 매달 34,900원이 그냥 빠져나가고 있어요.",
+    how:"각 서비스에서 해지 후 자동 반영", effect:"매달 34,900원 아낌" },
+  { id:"spendCap", ico:"target", tone:"b",
+    title:"하루 생활비 한도 11,000원 정하기",
+    desc:"최근 3개월 평균인 하루 15,000원보다 27% 낮은 한도예요. 넘으면 알림만 보내드려요.",
+    how:"결제를 막지 않고 알림만 보내요", effect:"이번 달 124,000원 아낌" },
+  { id:"stopBnpl", ico:"ban", tone:"w",
+    title:"BNPL 새로 쓰지 않기 (30일)",
+    desc:"지금 진행 중인 분할결제 3건이 11월까지 이어져요. 여기에 새로 더하면 부담이 겹쳐요.",
+    how:"이미 정해진 회차는 그대로 갚아요", effect:"9월 부담 297,000원 줄어듦" }
+];
+
+/* ═════════════════════════════════════════════════════════════════════
+   3 · 상태
+   ═════════════════════════════════════════════════════════════════════ */
+const DEFAULT_STATE = () => ({
+  screen:"connect", view:"single",
+  connected:[], consents:{c1:false,c2:false,c3:false}, connecting:false,
+  tab:"all", customFixed:[],
+  actions:{cardShift:false,cutSubs:false,spendCap:false,stopBnpl:false},
+  applied:null, modal:null, specOpen:false
+});
+let S = DEFAULT_STATE();
+
+const SCREENS = [
+  { id:"connect",  t:"금융 데이터 연결",  d:"동의하고 기관 연결" },
+  { id:"home",     t:"홈 · 위험 요약",    d:"위험 수준과 현금 흐름" },
+  { id:"upcoming", t:"예정 지출",        d:"카드·BNPL·대출·고정비" },
+  { id:"explain",  t:"AI 원인 설명",      d:"판단 근거와 사용 데이터" },
+  { id:"actions",  t:"대응 방법",        d:"고르면 바로 다시 계산" },
+  { id:"result",   t:"변화 결과",        d:"적용 전후 비교" },
+  { id:"settings", t:"연결 관리 · 기록",  d:"해제·기록·오류 신고" }
+];
+
+/* ═════════════════════════════════════════════════════════════════════
+   4 · 분석 엔진 — 예정 지출 → 일별 잔액 → 위험 점수
+   ═════════════════════════════════════════════════════════════════════ */
+function allItems(){ return BASE_ITEMS.concat(S.customFixed); }
+
+function activeItems(a){
+  return allItems().map(it => {
+    const o = Object.assign({}, it);
+    if (a.cardShift && it.id === "card"){ o.day = 26; o.shifted = true; }
+    if (a.cutSubs  && it.id === "subs"){  o.removed = true; }
+    return o;
+  }).filter(it => !it.removed);
+}
+
+function simulate(a){
+  const list = activeItems(a);
+  const daily = a.spendCap ? CAP_DAILY : BASE_DAILY;
+  const byDay = {};
+  list.forEach(it => { (byDay[it.day] = byDay[it.day] || []).push(it); });
+
+  let bal = START_BALANCE;
+  const series = [{ day:0, bal }];
+  let firstShort = null, shortDays = 0, maxShortfall = 0, minBal = bal;
+
+  for (let d = 1; d <= DAYS; d++){
+    (byDay[d] || []).forEach(it => bal -= it.amount);
+    if (d === INCOME.day) bal += INCOME.amount;
+    bal -= daily;
+    series.push({ day:d, bal });
+    if (bal < 0){
+      if (firstShort === null) firstShort = d;
+      shortDays++;
+      maxShortfall = Math.max(maxShortfall, -bal);
+    }
+    minBal = Math.min(minBal, bal);
+  }
+
+  const fixedOutflow = list.reduce((x,y)=>x+y.amount,0);
+  const outflow = fixedOutflow + daily*DAYS;
+  const burdenRatio = outflow / INCOME.amount;
+  const score = Math.max(0, Math.min(100, Math.round(
+    burdenRatio*25 + shortDays*3 + Math.min(maxShortfall/2000000,1)*35
+  )));
+  const level = score >= 60 ? "risk" : score >= 30 ? "warn" : "safe";
+  return { series, firstShort, shortDays, maxShortfall, minBal, outflow, fixedOutflow, burdenRatio, score, level, daily, list };
+}
+
+const LEVEL = {
+  risk:{ label:"위험", tone:"d", cls:"c-d", say:"결제일 전에 잔액이 모자랄 수 있어요" },
+  warn:{ label:"주의", tone:"w", cls:"c-w", say:"여유가 빠듯한 구간이 있어요" },
+  safe:{ label:"안정", tone:"g", cls:"c-g", say:"예정된 지출을 감당할 수 있어요" }
+};
+
+function catTotals(sim){
+  const t = { card:0, bnpl:0, loan:0, fixed:0 };
+  sim.list.forEach(i => t[i.cat] += i.amount);
+  return t;
+}
+
+function monthlySeries(a){
+  const sim = simulate(a);
+  const has = id => sim.list.some(i => i.id === id);
+  const newBnpl = a.stopBnpl ? 0 : NEW_BNPL_AVG;
+  const m9  = sim.fixedOutflow - (has("bnpl3") ? 76000 : 0) + newBnpl;
+  const m10 = m9 - (has("bnpl1") ? 89000 : 0);
+  return [
+    { m:"8월",  v:sim.fixedOutflow, est:false },
+    { m:"9월",  v:m9,  est:true },
+    { m:"10월", v:m10, est:true }
+  ];
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+   5 · 표시 유틸 · 차트
+   ═════════════════════════════════════════════════════════════════════ */
+const won  = n => Math.round(n).toLocaleString("ko-KR");
+const wonS = n => (n < 0 ? "-" : "") + won(Math.abs(n)) + "원";
+const manS = n => won(Math.round(n/10000)) + "만원";
+const esc  = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function cashChart(series, id, compare){
+  const W = 320, H = 148, PT = 10, PB = 22;
+  const all = series.map(p=>p.bal).concat(compare ? compare.map(p=>p.bal) : []).concat([0]);
+  const max = Math.max(...all), min = Math.min(...all), span = (max-min) || 1;
+  const x = i => (i*W/(series.length-1)).toFixed(1);
+  const y = v => (PT + (max-v)*(H-PT-PB)/span).toFixed(1);
+  const y0 = y(0);
+  const line = s => s.map((p,i)=>`${i?"L":"M"}${x(i)},${y(p.bal)}`).join(" ");
+  const area = s => line(s) + ` L${x(s.length-1)},${y0} L${x(0)},${y0} Z`;
+
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="일별 예상 잔액 그래프">
+    <defs>
+      <clipPath id="up-${id}"><rect x="0" y="0" width="${W}" height="${y0}"/></clipPath>
+      <clipPath id="dn-${id}"><rect x="0" y="${y0}" width="${W}" height="${(H-y0).toFixed(1)}"/></clipPath>
+      <linearGradient id="gp-${id}" x1="0" y1="0" x2="0" y2="1">
+        <stop class="cf-fill-pos-a" offset="0%"/><stop class="cf-fill-pos-b" offset="100%"/></linearGradient>
+      <linearGradient id="gn-${id}" x1="0" y1="0" x2="0" y2="1">
+        <stop class="cf-fill-neg-a" offset="0%"/><stop class="cf-fill-neg-b" offset="100%"/></linearGradient>
+    </defs>
+    ${compare ? `<path class="cf-prev" d="${line(compare)}"/>` : ""}
+    <path d="${area(series)}" fill="url(#gp-${id})" clip-path="url(#up-${id})"/>
+    <path d="${area(series)}" fill="url(#gn-${id})" clip-path="url(#dn-${id})"/>
+    <line class="cf-pay" x1="${x(INCOME.day)}" y1="${PT}" x2="${x(INCOME.day)}" y2="${H-PB}"/>
+    <line class="cf-zero" x1="0" y1="${y0}" x2="${W}" y2="${y0}"/>
+    <path class="cf-line cf-pos" d="${line(series)}" clip-path="url(#up-${id})"/>
+    <path class="cf-line cf-neg" d="${line(series)}" clip-path="url(#dn-${id})"/>
+    <text class="cf-tick" x="2" y="${(y0-5).toFixed(1)}">0원</text>
+    ${[1,10,20,25,31].map(d=>{
+      const anchor = d === 1 ? "start" : d === DAYS ? "end" : "middle";
+      return `<text class="cf-tick" x="${x(d)}" y="${H-6}" text-anchor="${anchor}">${d}일</text>`;
+    }).join("")}
+  </svg>`;
+}
+
+function monthBars(rows){
+  const max = Math.max(...rows.map(r=>r.v));
+  return `<div class="mbars">${rows.map(r=>`
+    <div class="mbar">
+      <span class="xs b8 num">${manS(r.v)}</span>
+      <span class="col${r.est?" est":""}" style="height:${Math.max(10, Math.round(r.v/max*74))}px"></span>
+      <span class="xs muted">${r.m}${r.est?" 예상":""}</span>
+    </div>`).join("")}</div>`;
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+   6 · 앱 화면
+   ═════════════════════════════════════════════════════════════════════ */
+function view(o){
+  return `<div class="app">
+    <header class="appbar">
+      ${o.back ? `<button class="iconbtn" data-act="go" data-to="${o.back}" aria-label="뒤로 가기">${ic("left")}</button>` : ""}
+      <h2 class="apptitle">${o.title}</h2>
+      ${o.action ? `<span class="act">${o.action}</span>` : ""}
+    </header>
+    <div class="appscroll enter">${o.body}</div>
+    ${o.dock ? `<div class="dock">${o.dock}</div>` : ""}
+    ${o.tab ? tabbar(o.tab) : ""}
+  </div>`;
+}
+
+function tabbar(active){
+  const t = [["home","home","홈"],["upcoming","calendar","예정 지출"],["actions","target","대응"],["settings","sliders","설정"]];
+  return `<nav class="tabbar" aria-label="주요 메뉴">${t.map(([id,icon,label])=>`
+    <button data-act="go" data-to="${id}" aria-current="${active===id}">${ic(icon)}${label}</button>`).join("")}</nav>`;
+}
+
+function gauge(score){
+  const seg = score >= 60 ? 3 : score >= 30 ? 2 : 1;
+  const cls = ["on-g","on-w","on-d"];   // 켜진 칸은 각자의 구간 색 — 차오르는 계기판
+  return `<div class="gauge">
+    <div class="gauge-track">${[0,1,2].map(i=>`<i class="${i<seg?cls[i]:""}"></i>`).join("")}</div>
+    <div class="gauge-scale"><span>안정</span><span>주의</span><span>위험</span></div>
+  </div>`;
+}
+
+/* ── 1 · 금융 데이터 연결 ─────────────────────────────────────────── */
+function scConnect(){
+  const reqOk = CONSENTS.filter(c=>c.req).every(c=>S.consents[c.id]);
+  const ready = reqOk && S.connected.length > 0;
+
+  if (S.connecting){
+    return view({ title:"", body:`
+      <div style="text-align:center;padding:var(--space-3xl) var(--space-xs) 0">
+        <span class="av b" style="width:64px;height:64px;border-radius:var(--radius-xl);margin:0 auto">
+          ${ic("shield")}</span>
+        <h3 class="headline" style="margin-top:var(--space-lg)">안전하게 불러오고 있어요</h3>
+        <p class="lede" style="margin-top:var(--space-xs)">${S.connected.length}곳에서 앞으로 나갈 돈을 확인하는 중이에요</p>
+        <div class="bar" style="margin:var(--space-xl) var(--space-2xl) var(--space-sm)"><i style="width:72%"></i></div>
+        <p class="xs muted">전송·저장 구간 모두 암호화해서 처리해요</p>
+      </div>` });
+  }
+
+  return view({ title:"금융 데이터 연결", body:`
+    <p class="lede">앞으로 <b>나갈 돈만</b> 가져와요.<br>송금이나 결제는 하지 않아요.</p>
+
+    <div class="sec"><h3>어디를 연결할까요?</h3><span class="note">${S.connected.length}곳 선택</span></div>
+    <div class="card pad-list">
+      ${INSTITUTIONS.map(i=>{
+        const on = S.connected.includes(i.id);
+        return `<button class="row tap" data-act="toggleInst" data-id="${i.id}" aria-pressed="${on}">
+          <span class="av ${on?"b":""}">${ic(i.ico)}</span>
+          <span class="grow">
+            <span class="t-name">${i.name} <span class="tag">${i.type}</span></span>
+            <span class="t-sub">${i.cnt}</span>
+          </span>
+          <span class="mark-box ${on?"on":""}">${ic("check")}</span>
+        </button>`;
+      }).join("")}
+    </div>
+
+    <div class="sec"><h3>동의가 필요해요</h3></div>
+    <div class="card pad-list">
+      ${CONSENTS.map(c=>{
+        const on = S.consents[c.id];
+        return `<button class="row tap" data-act="toggleConsent" data-id="${c.id}" aria-pressed="${on}" style="align-items:flex-start">
+          <span class="mark-box round ${on?"on":""}" style="margin-top:2px">${ic("check")}</span>
+          <span class="grow">
+            <span class="t-name sm">${c.req?'<span class="tag d">필수</span>':'<span class="tag">선택</span>'} ${c.t}</span>
+            <span class="t-sub">${c.d}</span>
+          </span>
+        </button>`;
+      }).join("")}
+    </div>
+
+    <div class="note">${ic("lock")}<span>연결한 데이터는 <b>미래 부담 분석</b>에만 써요. 설정에서 언제든 연결을 끊으면 바로 파기해요.</span></div>
+  `, dock:`
+    <div class="stack">
+      <button class="btn" data-act="connect" ${ready?"":"disabled"}>
+        ${ready ? "연결하고 분석 시작" : (S.connected.length === 0 ? "기관을 먼저 선택해 주세요" : "필수 동의를 완료해 주세요")}
+      </button>
+      <button class="btn quiet" data-act="go" data-to="home">먼저 둘러볼래요</button>
+    </div>` });
+}
+
+/* ── 2 · 홈 ───────────────────────────────────────────────────────── */
+function scHome(){
+  const sim = simulate(S.applied || {});
+  const L = LEVEL[sim.level];
+  const t = catTotals(sim);
+  const total = sim.fixedOutflow;
+
+  const headline = sim.firstShort
+    ? `${USER}님, ${MONTH}월 ${sim.firstShort}일부터<br>잔액이 모자랄 수 있어요`
+    : `${USER}님, ${MONTH}월은<br>예정된 지출을 감당할 수 있어요`;
+
+  return view({ title:"홈", action:`${ic("clock")} 분석 1.2초`, body:`
+    <h3 class="headline">${headline}</h3>
+
+    <div class="card" style="margin-top:var(--space-md)">
+      <div class="row" style="padding-top:0;min-height:0">
+        <span class="grow">
+          <span class="xs muted">앞으로 30일 금융 부담 위험</span>
+          <span class="huge ${L.cls} num" style="display:block">${L.label}</span>
+        </span>
+        <span class="end">
+          <span class="big num ${L.cls}">${sim.score}</span><span class="sm muted">점</span>
+        </span>
+      </div>
+      ${gauge(sim.score)}
+      <div class="hr"></div>
+      <p class="sm ink2">${L.say}</p>
+    </div>
+
+    ${S.applied ? `<div class="note info">${ic("check")}<span>고른 대응 ${Object.values(S.applied).filter(Boolean).length}개가 반영된 결과예요.
+      <button class="linkbtn" data-act="go" data-to="result">변화 보기</button></span></div>` : ""}
+
+    <div class="sec"><h3>${MONTH}월 잔액 흐름</h3><span class="note">${wonS(START_BALANCE)}에서 시작</span></div>
+    <div class="card">
+      ${cashChart(sim.series, "home")}
+      <div class="legend">
+        <span><i class="b"></i>잔액 있음</span><span><i class="d"></i>잔액 부족</span><span><i class="g"></i>월급날 25일</span>
+      </div>
+      <div class="hr"></div>
+      <div class="row" style="min-height:0;padding-bottom:0">
+        <span class="grow">
+          <span class="xs muted">가장 낮을 때 잔액</span>
+          <span class="big num ${sim.minBal<0?"c-d":"c-g"}" style="display:block">${wonS(sim.minBal)}</span>
+        </span>
+        <span class="end">
+          <span class="xs muted">부족한 날</span>
+          <span class="big num" style="display:block">${sim.shortDays}일</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="sec"><h3>무엇이 부담을 만드나요</h3><span class="note">${manS(total)}</span></div>
+    <div class="card">
+      ${Object.keys(CATS).map((k,i)=>{
+        const pct = total ? Math.round(t[k]/total*100) : 0;
+        return `<div style="margin:${i?"var(--space-md)":"0"} 0 0">
+          <div class="row" style="padding:0 0 6px;min-height:0">
+            <span class="av ${CATS[k].tone}" style="width:28px;height:28px;border-radius:var(--radius-sm)">${ic(CATS[k].ico)}</span>
+            <span class="grow sm b7">${CATS[k].name}<span class="muted"> ${pct}%</span></span>
+            <span class="amt num">${won(t[k])}</span>
+          </div>
+          <div class="bar"><i class="${CATS[k].tone}" style="width:${pct}%"></i></div>
+        </div>`;
+      }).join("")}
+      <div class="hr"></div>
+      <div class="kv"><span class="muted">월 소득 (25일 급여)</span><span class="num b7">${won(INCOME.amount)}원</span></div>
+      <div class="kv"><span class="muted">예정 지출 + 생활비 예상</span><span class="num b7">${won(sim.outflow)}원</span></div>
+      <div class="kv"><span class="muted">소득 대비 부담률</span><span class="num b8 ${L.cls}">${Math.round(sim.burdenRatio*100)}%</span></div>
+    </div>
+
+    <div class="note">${ic("bulb")}<span>분석은 <b>참고 정보</b>예요. 금융상품을 권유하지 않고, 결정은 ${USER}님이 해요.</span></div>
+  `, dock:`<button class="btn" data-act="go" data-to="explain">왜 그런지 알아보기</button>`, tab:"home" });
+}
+
+/* ── 3 · 예정 지출 ─────────────────────────────────────────────────── */
+function scUpcoming(){
+  const sim = simulate(S.applied || {});
+  const list = sim.list.slice().sort((a,b)=>a.day-b.day);
+  const shown = S.tab === "all" ? list : list.filter(i=>i.cat===S.tab);
+  const sum = shown.reduce((a,b)=>a+b.amount,0);
+  const tabs = [["all","전체"]].concat(Object.keys(CATS).map(k=>[k, CATS[k].name]));
+
+  // 날짜별 묶기
+  const groups = [];
+  shown.forEach(it => {
+    let g = groups.find(x=>x.day===it.day);
+    if (!g){ g = { day:it.day, items:[] }; groups.push(g); }
+    g.items.push(it);
+  });
+  if (S.tab === "all") groups.push({ day:INCOME.day, income:true, items:[] });
+  groups.sort((a,b)=>a.day-b.day);
+
+  return view({ title:"예정 지출", back:"home", body:`
+    <div class="chips">
+      ${tabs.map(([k,l])=>`<button data-act="tab" data-id="${k}" aria-pressed="${S.tab===k}">${l}</button>`).join("")}
+    </div>
+
+    <div class="card flat" style="margin-top:var(--space-sm)">
+      <div class="row" style="padding:0;min-height:0">
+        <span class="grow">
+          <span class="xs muted">${MONTH}월 ${S.tab==="all"?"전체":CATS[S.tab].name} 예정액</span>
+          <span class="big num" style="display:block">${won(sum)}원</span>
+        </span>
+        <button class="linkbtn" data-act="openFixed">고정비 추가</button>
+      </div>
+    </div>
+
+    <div class="sec"><h3>결제 일정</h3><span class="note">${shown.length}건</span></div>
+    ${groups.map(g=>`
+      <div class="daygroup">
+        <p class="dayhead">${MONTH}월 ${g.day}일</p>
+        <div class="card pad-list">
+          ${g.items.map(it=>{
+            const bal = sim.series[it.day].bal;
+            return `<div class="row">
+              <span class="av ${CATS[it.cat].tone}">${ic(CATS[it.cat].ico)}</span>
+              <span class="grow">
+                <span class="t-name">${esc(it.name)}${it.shifted?' <span class="tag b">날짜 변경</span>':""}${it.custom?' <span class="tag">직접 입력</span>':""}</span>
+                <span class="t-sub">${esc(it.desc||"고정비")}</span>
+              </span>
+              <span class="end">
+                <span class="amt num">-${won(it.amount)}</span>
+                <span class="t-sub num ${bal<0?"c-d":""}">잔액 ${wonS(bal)}</span>
+              </span>
+              ${it.custom?`<button class="linkbtn d" data-act="delFixed" data-id="${it.id}">삭제</button>`:""}
+            </div>`;
+          }).join("")}
+          ${g.income?`<div class="row">
+            <span class="av g">${ic("wallet")}</span>
+            <span class="grow"><span class="t-name">${INCOME.name}</span><span class="t-sub">${INCOME.src}</span></span>
+            <span class="end"><span class="amt num c-g">+${won(INCOME.amount)}</span></span>
+          </div>`:""}
+        </div>
+      </div>`).join("")}
+
+    <div class="sec"><h3>달마다 부담이 어떻게 변할까요</h3></div>
+    <div class="card">
+      ${monthBars(monthlySeries(S.applied || {}))}
+      <div class="hr"></div>
+      <p class="xs muted">9~10월은 <b>예상치</b>예요. 분할결제가 끝나는 일정(C마트 8월 · A쇼핑 9월)과
+        최근 3개월 평균 신규 분할결제 금액(${won(NEW_BNPL_AVG)}원)을 반영했고, 금액이 확정되면 자동으로 바뀌어요.</p>
+    </div>
+  `, dock:`<button class="btn" data-act="go" data-to="explain">이 부담이 위험한 이유</button>`, tab:"upcoming" });
+}
+
+/* ── 4 · AI 원인 설명 ──────────────────────────────────────────────── */
+function scExplain(){
+  const sim = simulate(S.applied || {});
+  const L = LEVEL[sim.level];
+  const t = catTotals(sim);
+  const card = sim.list.find(i=>i.id==="card");
+  const lowDay = sim.firstShort ||
+    sim.series.reduce((m,p,i)=> (i>0 && p.bal < sim.series[m].bal) ? i : m, 1);
+  const cardEarly = card && card.day < INCOME.day;
+
+  const grounds = [
+    { t:`${MONTH}월 ${lowDay}일에 잔액이 ${wonS(sim.series[lowDay].bal)}까지 내려가요`,
+      d: cardEarly
+        ? `${MONTH}월 ${card.day}일에 카드값 ${won(card.amount)}원이 빠져나가는데 월급은 ${INCOME.day}일에 들어와요. 나갈 돈이 들어올 돈보다 ${INCOME.day-card.day}일 먼저 움직여요.`
+        : `카드 결제일(${card?card.day:"-"}일)이 월급날(${INCOME.day}일) 뒤로 옮겨져서, 큰 지출이 돈이 들어온 다음에 발생해요.` },
+    { t:`분할결제 3건이 5일·12일·20일에 나눠서 ${won(t.bnpl)}원 빠져나가요`,
+      d:"한 번에 큰돈은 아니지만 카드 결제일 앞뒤로 흩어져 있어서, 결제일에 남아 있어야 할 잔액을 미리 깎아요." },
+    { t:`버는 돈의 ${Math.round(sim.burdenRatio*100)}%가 이미 나갈 예정이에요`,
+      d:`예정 지출과 생활비 예상액을 더하면 ${manS(sim.outflow)}으로, 월 소득 ${manS(INCOME.amount)}에 거의 닿아요. 갑작스러운 지출이 생기면 다음 달로 부담이 넘어갈 수 있어요.` }
+  ];
+
+  return view({ title:"AI 분석 설명", back:"home", body:`
+    <div class="card">
+      <div class="row" style="padding:0;min-height:0;align-items:flex-start">
+        <span class="av ${L.tone}">${ic("bulb")}</span>
+        <span class="grow">
+          <span class="tag ${L.tone}">위험 ${L.label} · ${sim.score}점</span>
+          <p class="t-name" style="margin-top:var(--space-xs);line-height:1.5;font-size:var(--text-lg)">
+            ${sim.firstShort
+              ? `${MONTH}월 ${sim.firstShort}일부터 ${sim.shortDays}일 동안 잔액이 모자랄 것 같아요. 가장 큰 이유는 <span class="c-b">카드 결제일이 월급날보다 앞서 있기 때문</span>이에요.`
+              : `지금 예정된 지출은 이번 달 소득과 잔액으로 감당할 수 있어요. 다만 부담률이 ${Math.round(sim.burdenRatio*100)}%라 여유가 크지는 않아요.`}
+          </p>
+        </span>
+      </div>
+    </div>
+
+    <div class="sec"><h3>이렇게 판단했어요</h3></div>
+    <div class="card">
+      <div class="steps">
+        ${grounds.map((g,i)=>`<div class="step">
+          <span class="n">${i+1}</span>
+          <span class="grow">
+            <span class="t-name" style="line-height:1.45">${g.t}</span>
+            <span class="t-sub" style="line-height:1.55;margin-top:4px;display:block">${g.d}</span>
+          </span>
+        </div>`).join("")}
+      </div>
+    </div>
+
+    <div class="sec"><h3>이 데이터를 봤어요</h3><span class="note">2026-08-01 09:12 조회</span></div>
+    <div class="card pad-list">
+      ${[
+        ["card","신한카드 결제 예정액","확정 1건 · 승인내역 42건"],
+        ["receipt","토스 BNPL 상환 일정","진행 중 3건 · 남은 7회차"],
+        ["doc","우리은행 신용대출 일정","1건 · 36회 중 11회차"],
+        ["bank","국민은행 입출금·자동이체","잔액 1건 · 자동이체 4건"],
+        ["home","직접 입력한 고정비", S.customFixed.length ? `${S.customFixed.length}건` : "없음"]
+      ].map(([icon,n,d])=>`<div class="row">
+        <span class="av">${ic(icon)}</span>
+        <span class="grow"><span class="t-name sm">${n}</span><span class="t-sub">${d}</span></span>
+        <span class="tag g">정상</span>
+      </div>`).join("")}
+      <div class="hr"></div>
+      <p class="xs muted" style="padding-bottom:var(--space-sm)">생활비는 최근 3개월 평균(하루 ${won(BASE_DAILY)}원)으로 <b>예상한 값</b>이에요. 실제와 다를 수 있어요.</p>
+    </div>
+
+    <div class="note warn">${ic("alert")}<span>이 분석은 <b>판단을 돕는 참고 정보</b>예요. FinGuard는 대출·카드·투자 어떤 금융상품도 권유하거나 중개하지 않고, 마지막 결정과 실행은 ${USER}님이 해요.</span></div>
+  `, dock:`
+    <div class="stack">
+      <button class="btn" data-act="go" data-to="actions">대응 방법 보기</button>
+      <button class="btn quiet" data-act="openReport">결과가 실제와 달라요</button>
+    </div>`, tab:"home" });
+}
+
+/* ── 5 · 대응 방법 ─────────────────────────────────────────────────── */
+function scActions(){
+  const base = simulate(S.applied || {});
+  const prev = simulate(S.actions);
+  const picked = Object.values(S.actions).filter(Boolean).length;
+  const PL = LEVEL[prev.level];
+  const delta = base.score - prev.score;
+
+  return view({ title:"대응 방법", back:"explain", body:`
+    <p class="lede">${USER}님이 <b>직접 할 수 있는 방법</b>만 알려드려요. FinGuard가 대신 결제하거나 해지하지 않아요.</p>
+
+    <div class="card tint-b" style="margin-top:var(--space-md)">
+      <div class="row" style="padding:0;min-height:0">
+        <span class="grow">
+          <span class="xs c-b b7">고르면 예상되는 위험 점수</span>
+          <span style="display:flex;align-items:baseline;gap:var(--space-xs);margin-top:2px">
+            <span class="big num muted strike">${base.score}</span>
+            <span class="muted">→</span>
+            <span class="huge num ${PL.cls}">${prev.score}</span>
+            <span class="tag ${PL.tone}">${PL.label}</span>
+          </span>
+        </span>
+        <span class="end">
+          <span class="xs c-b">가장 낮은 잔액</span>
+          <span class="amt num ${prev.minBal<0?"c-d":"c-g"}" style="display:block">${wonS(prev.minBal)}</span>
+          <span class="t-sub">부족 ${prev.shortDays}일</span>
+        </span>
+      </div>
+      ${delta > 0 ? `<p class="xs c-g b7" style="margin-top:var(--space-sm)">${delta}점 낮아져요</p>`
+                  : `<p class="xs muted" style="margin-top:var(--space-sm)">방법을 고르면 결과가 바로 다시 계산돼요</p>`}
+    </div>
+
+    <div class="sec"><h3>추천하는 방법</h3><span class="note">${picked}개 선택</span></div>
+    ${ACTIONS.map(a=>{
+      const on = S.actions[a.id];
+      return `<button class="pick" data-act="toggleAction" data-id="${a.id}" aria-pressed="${on}">
+        <span class="row" style="padding:0;min-height:0;align-items:flex-start">
+          <span class="av ${a.tone}">${ic(a.ico)}</span>
+          <span class="grow">
+            <span class="t-name" style="line-height:1.45">${a.title}</span>
+            <span class="t-sub" style="line-height:1.55;margin-top:4px;display:block">${a.desc}</span>
+            <span style="display:flex;gap:var(--space-xs);flex-wrap:wrap;margin-top:var(--space-sm)">
+              <span class="tag ${a.tone||"b"}">${a.effect}</span><span class="tag">${a.how}</span>
+            </span>
+          </span>
+          <span class="mark-box ${on?"on":""}" style="margin-top:2px">${ic("check")}</span>
+        </span>
+      </button>`;
+    }).join("")}
+
+    <div class="note">${ic("ban")}<span>추가 대출·리볼빙·새 카드 같은 <b>금융상품은 제안하지 않아요.</b> 지금 있는 지출과 일정을 조정하는 범위에서만 계산해요.</span></div>
+  `, dock:`
+    <div class="stack">
+      <button class="btn" data-act="apply" ${picked?"":"disabled"}>${picked ? `${picked}개 방법 적용하기` : "방법을 골라 주세요"}</button>
+      ${S.applied ? `<button class="btn quiet" data-act="undo">적용한 대응 되돌리기</button>` : ""}
+    </div>`, tab:"actions" });
+}
+
+/* ── 6 · 변화 결과 ─────────────────────────────────────────────────── */
+function scResult(){
+  const before = simulate({});
+  const after  = simulate(S.applied || S.actions);
+  const AL = LEVEL[after.level];
+  const picked = ACTIONS.filter(a => (S.applied || S.actions)[a.id]);
+  const mb = monthlySeries({}), ma = monthlySeries(S.applied || S.actions);
+
+  const headline = after.shortDays === 0 && before.shortDays > 0
+    ? "잔액이 모자라는 날이 사라졌어요"
+    : after.score < before.score ? "부담이 이만큼 줄어들어요" : "아직 부족한 날이 남아 있어요";
+
+  return view({ title:"변화 결과", back:"actions", body:`
+    <h3 class="headline">${headline}</h3>
+
+    <div class="card tint-${after.score<before.score?"g":"b"}" style="margin-top:var(--space-md)">
+      <div class="row" style="padding:0;min-height:0">
+        <span class="grow">
+          <span class="xs b7 ${AL.cls}">적용 후 위험 수준</span>
+          <span style="display:flex;align-items:baseline;gap:var(--space-xs);margin-top:2px">
+            <span class="huge ${AL.cls}">${AL.label}</span>
+            <span class="sm muted num">${before.score}점 → ${after.score}점</span>
+          </span>
+        </span>
+        <span class="av ${after.score<before.score?"g":"b"}" style="width:44px;height:44px">${ic("chart")}</span>
+      </div>
+    </div>
+
+    <div class="sec"><h3>잔액 흐름 비교</h3></div>
+    <div class="card">
+      ${cashChart(after.series, "res", before.series)}
+      <div class="legend">
+        <span><i></i>적용 전</span><span><i class="b"></i>적용 후</span><span><i class="d"></i>잔액 부족</span>
+      </div>
+    </div>
+
+    <div class="sec"><h3>숫자로 보면</h3></div>
+    <div class="card">
+      ${[
+        ["가장 낮을 때 잔액", wonS(before.minBal), wonS(after.minBal), after.minBal > before.minBal],
+        ["부족한 날", before.shortDays+"일", after.shortDays+"일", after.shortDays < before.shortDays],
+        ["가장 많이 모자란 금액", wonS(-before.maxShortfall), wonS(-after.maxShortfall), after.maxShortfall < before.maxShortfall],
+        ["소득 대비 부담률", Math.round(before.burdenRatio*100)+"%", Math.round(after.burdenRatio*100)+"%", after.burdenRatio < before.burdenRatio]
+      ].map(([k,b,a,good])=>`<div class="kv">
+        <span class="muted">${k}</span>
+        <span style="display:flex;align-items:center;gap:var(--space-xs)">
+          <span class="num strike">${b}</span><span class="muted">→</span>
+          <span class="num b8 ${good?"c-g":""}">${a}</span>
+        </span></div>`).join("")}
+    </div>
+
+    <div class="sec"><h3>다음 달 이후</h3></div>
+    <div class="card">
+      ${mb.map((r,i)=>`<div class="kv">
+        <span class="muted">${r.m} 예정 부담${r.est?" (예상)":""}</span>
+        <span style="display:flex;align-items:center;gap:var(--space-xs)">
+          <span class="num strike">${manS(r.v)}</span><span class="muted">→</span>
+          <span class="num b8 ${ma[i].v<r.v?"c-g":""}">${manS(ma[i].v)}</span>
+        </span></div>`).join("")}
+    </div>
+
+    <div class="sec"><h3>적용한 방법</h3><span class="note">${picked.length}건</span></div>
+    <div class="card pad-list">
+      ${picked.length ? picked.map(a=>`<div class="row">
+        <span class="av g">${ic(a.ico)}</span>
+        <span class="grow"><span class="t-name sm">${a.title}</span><span class="t-sub">${a.how}</span></span>
+        <span class="tag g">진행 중</span>
+      </div>`).join("") : `<div class="row"><span class="grow sm muted">고른 방법이 없어요</span></div>`}
+    </div>
+
+    <div class="note">${ic("clock")}<span>실제 반영은 각 기관에서 직접 처리해야 이뤄져요. FinGuard가 <b>다음 데이터 갱신 때 확인</b>하고, 예상과 다르면 다시 알려드릴게요.</span></div>
+  `, dock:`
+    <div class="stack">
+      <button class="btn" data-act="go" data-to="home">홈으로</button>
+      <button class="btn quiet" data-act="go" data-to="actions">다른 방법 고르기</button>
+    </div>`, tab:"actions" });
+}
+
+/* ── 7 · 연결 관리 · 기록 ──────────────────────────────────────────── */
+function scSettings(){
+  const logs = [
+    ["분석 실행",   "2026-08-01 09:12", "예정 지출 9건 · 위험 점수 79 산출"],
+    ["데이터 조회", "2026-08-01 09:12", "신한카드 · 토스 BNPL · 우리은행 · 국민은행"],
+    ["추천 제공",   "2026-08-01 09:14", "대응 방법 4건 제시 · 3건 선택"],
+    ["분석 실행",   "2026-07-25 08:40", "예정 지출 8건 · 위험 점수 62 산출"],
+    ["동의 등록",   "2026-07-24 21:05", "금융 데이터 조회·분석 이용 동의"]
+  ];
+  const shown = S.connected.length ? INSTITUTIONS.filter(i=>S.connected.includes(i.id)) : INSTITUTIONS.slice(0,4);
+
+  return view({ title:"연결 관리", back:"home", body:`
+    <div class="sec" style="margin-top:var(--space-xs)"><h3>연결한 곳</h3><span class="note">${shown.length}곳</span></div>
+    <div class="card pad-list">
+      ${shown.map(i=>`<div class="row">
+        <span class="av">${ic(i.ico)}</span>
+        <span class="grow"><span class="t-name">${i.name}</span><span class="t-sub">${i.cnt}</span></span>
+        <button class="linkbtn d" data-act="disconnect" data-id="${i.id}">연결 끊기</button>
+      </div>`).join("")}
+      <div class="hr"></div>
+      <p class="xs muted" style="padding-bottom:var(--space-sm)">연결을 끊으면 그 기관 데이터는 <b>바로 파기</b>되고 분석에서 빠져요.</p>
+    </div>
+
+    <div class="sec"><h3>조회·분석 기록</h3><span class="note">감사 증적</span></div>
+    <div class="card pad-list">
+      ${logs.map(([k,d,v])=>`<div class="row" style="align-items:flex-start">
+        <span class="grow">
+          <span style="display:flex;align-items:center;gap:var(--space-xs)"><span class="tag b">${k}</span><span class="t-sub num">${d}</span></span>
+          <span class="t-sub" style="margin-top:var(--space-2xs);display:block">${v}</span>
+        </span>
+      </div>`).join("")}
+    </div>
+
+    <div class="sec"><h3>정확성과 책임</h3></div>
+    <div class="card pad-list">
+      <button class="row tap" data-act="openReport" style="width:100%">
+        <span class="av d">${ic("flag")}</span>
+        <span class="grow"><span class="t-name">분석 오류 신고</span><span class="t-sub">금액이나 일정이 실제와 다르면 알려 주세요</span></span>
+        ${ic("right")}
+      </button>
+      <div class="row">
+        <span class="av">${ic("book")}</span>
+        <span class="grow"><span class="t-name">분석 기준 안내</span><span class="t-sub">위험 점수를 어떻게 계산하는지 확인해요</span></span>
+        ${ic("right")}
+      </div>
+      <div class="row">
+        <span class="av">${ic("lock")}</span>
+        <span class="grow"><span class="t-name">동의 내역 관리</span><span class="t-sub">동의 철회와 보유 기간을 확인해요</span></span>
+        ${ic("right")}
+      </div>
+    </div>
+
+    <div class="note">${ic("shield")}<span>FinGuard는 금융상품을 팔거나 중개하지 않고, 신용점수 평가나 투자 자문도 하지 않아요. AI 분석은 판단을 돕는 정보이고 금융 결정의 책임은 ${USER}님에게 있어요.</span></div>
+
+    <div class="stack" style="margin-top:var(--space-lg)">
+      <button class="btn danger" data-act="reset">전체 연결 끊고 데이터 삭제</button>
+    </div>
+  `, tab:"settings" });
+}
+
+/* ── 모달 ──────────────────────────────────────────────────────────── */
+function renderModal(){
+  const root = document.getElementById("modalRoot");
+  if (!S.modal){ root.innerHTML = ""; return; }
+
+  if (S.modal === "fixed"){
+    root.innerHTML = `<div class="scrim" data-act="closeModal">
+      <div class="sheet" data-stop role="dialog" aria-modal="true" aria-label="고정비 추가">
+        <h3>고정비를 추가할게요</h3>
+        <p class="sm muted" style="margin-top:4px">기관 연결로 잡히지 않는 지출(학원비·관리비 등)을 넣으면 분석에 함께 반영돼요.</p>
+        <div class="field"><label for="fxName">무슨 지출인가요</label><input id="fxName" placeholder="예: 아이 학원비" /></div>
+        <div class="field"><label for="fxAmt">얼마인가요 (원)</label><input id="fxAmt" type="number" inputmode="numeric" placeholder="150000" /></div>
+        <div class="field"><label for="fxDay">며칠에 나가나요 (1~31)</label><input id="fxDay" type="number" inputmode="numeric" min="1" max="31" placeholder="18" /></div>
+        <div class="stack" style="margin-top:var(--space-lg)">
+          <button class="btn sm" data-act="saveFixed">추가하고 다시 분석</button>
+          <button class="btn quiet" data-act="closeModal">취소</button>
+        </div>
+      </div></div>`;
+    setTimeout(()=>{ const el = document.getElementById("fxName"); if (el) el.focus(); }, 30);
+  }
+
+  if (S.modal === "report"){
+    root.innerHTML = `<div class="scrim" data-act="closeModal">
+      <div class="sheet" data-stop role="dialog" aria-modal="true" aria-label="분석 오류 신고">
+        <h3>어디가 실제와 다른가요?</h3>
+        <p class="sm muted" style="margin-top:4px">알려 주시면 운영 검토 후 고치고, 처리 결과를 알림으로 보내드려요.</p>
+        <div class="field"><label for="rpWhat">다른 부분</label><input id="rpWhat" placeholder="예: 신한카드 결제 예정액이 실제보다 커요" /></div>
+        <div class="field"><label for="rpVal">실제 값 (선택)</label><input id="rpVal" placeholder="예: 820,000원" /></div>
+        <div class="note">${ic("clock")}<span>신고하면 이 분석 결과에 <b>검토 중</b> 표시가 붙고, 관련 추천은 잠시 멈춰요.</span></div>
+        <div class="stack" style="margin-top:var(--space-lg)">
+          <button class="btn sm" data-act="sendReport">신고 접수</button>
+          <button class="btn quiet" data-act="closeModal">취소</button>
+        </div>
+      </div></div>`;
+    setTimeout(()=>{ const el = document.getElementById("rpWhat"); if (el) el.focus(); }, 30);
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+   7 · PRD 근거 패널
+   ═════════════════════════════════════════════════════════════════════ */
+const PRD = {
+  connect: { lede:"MVP In Scope · 금융 데이터 연결",
+    acc:["사용자 동의 기반 데이터 접근 (§7 접근관리)","금융 데이터 암호화 저장·전송 고지","연결 해제·정보 수정 가능 (AI 운영 기준)"],
+    kpi:["금융 데이터 연결 완료율 70%"], risk:["보안성 — 최소 권한·동의 기반 접근"] },
+  home: { lede:"MVP In Scope · 금융 부담 분석 / User Flow ③",
+    acc:["미래 금융 부담을 한 화면에서 확인","카드·BNPL·대출·고정비 구성 표시","기간별 부담 변화 확인"],
+    kpi:["분석 결과 확인율 60%"], risk:["안전성 — 위험 표시와 참고 정보 고지 병기"] },
+  upcoming: { lede:"MVP In Scope · 예정 지출 통합 조회",
+    acc:["카드 결제 예정액 표시","BNPL 예정 상환액 표시","대출 상환 일정 표시","고정비 입력 가능","월별 부담 변화 확인 가능"],
+    kpi:["분석 결과 확인율 60%"], risk:["정확성 — 확정/예상 구분 표기"] },
+  explain: { lede:"MVP In Scope · AI 설명 제공 / User Flow ④",
+    acc:["위험 판단 근거 표시","분석 대상 데이터 표시","이해 가능한 표현 사용","금융상품 가입 권유 금지"],
+    kpi:["AI 설명 확인율 50%"], risk:["안전성 — 원인·근거 동반 표시","정확성 — 오류 신고 진입점"] },
+  actions: { lede:"MVP In Scope · 대응 방법 추천 / User Flow ⑤",
+    acc:["실행 가능한 대응 방법 제시","금융상품 권유 금지","자동 금융 조정 Out Scope 준수 (실행은 사용자)"],
+    kpi:["추천 행동 실행률 30%"], risk:["안전성 — 과도한 금융 행동 유도 방지"] },
+  result: { lede:"User Flow ⑥ · 변화 결과 확인",
+    acc:["대응 선택에 따른 부담 변화 확인","적용 전후 비교 제공"],
+    kpi:["추천 행동 실행률 30%","효과성 — 추천 이후 부담 변화 측정"], risk:["정확성 — 다음 갱신 때 실행 여부 재확인"] },
+  settings: { lede:"§9 규제 및 책임 / AI 운영 기준 · 기록 관리",
+    acc:["데이터 접근 권한 관리","조회·분석·추천 기록 저장 (감사 증적)","오류 신고 및 수정 프로세스","연결 해제 및 정보 수정 가능"],
+    kpi:["개인정보 사고 0건","잘못된 위험 안내 신고 지속 관리"], risk:["보안성 — 접근 기록 저장","신뢰성 — 오류 신고·복구 절차"] }
+};
+
+function renderSpec(){
+  const m = PRD[S.screen] || PRD.home;
+  const s = SCREENS.find(x=>x.id===S.screen);
+  const block = (title, arr, cls) => arr && arr.length
+    ? `<h4>${title}</h4><ul>${arr.map(x=>`<li class="${cls||""}">${x}</li>`).join("")}</ul>` : "";
+  document.getElementById("spec").innerHTML =
+    `<button class="close" data-act="closeSpec" aria-label="닫기">${ic("close")}</button>
+     <h3>${s.t}</h3><p class="lede">${m.lede}</p>` +
+    block("충족하는 수용 기준", m.acc, "acc") +
+    block("관련 KPI", m.kpi) +
+    block("리스크 대응", m.risk);
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+   8 · 렌더 / 이벤트
+   ═════════════════════════════════════════════════════════════════════ */
+const RENDER = { connect:scConnect, home:scHome, upcoming:scUpcoming, explain:scExplain,
+                 actions:scActions, result:scResult, settings:scSettings };
+
+function render(){
+  document.getElementById("rail").innerHTML =
+    `<p class="rail-h">화면 흐름</p>` + SCREENS.map((s,i)=>`
+      <button data-act="go" data-to="${s.id}" aria-current="${S.screen===s.id}">
+        <span class="n">${i+1}</span>
+        <span><span class="t">${s.t}</span><span class="d">${s.d}</span></span>
+      </button>`).join("");
+
+  const single = S.view === "single";
+  const stage = document.getElementById("stage");
+  stage.classList.toggle("gallery-mode", !single);
+  document.getElementById("device").classList.toggle("hidden", !single);
+  document.getElementById("gallery").classList.toggle("on", !single);
+
+  if (single){
+    document.getElementById("device").innerHTML = RENDER[S.screen]();
+  } else {
+    document.getElementById("gallery").innerHTML = SCREENS.map((s,i)=>`
+      <figure class="film">
+        <figcaption><span class="n">${i+1}</span>${s.t}</figcaption>
+        <div class="device">${RENDER[s.id]()}</div>
+      </figure>`).join("");
+  }
+
+  document.querySelectorAll("#viewSeg button").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.view === S.view)));
+  document.getElementById("spec").classList.toggle("open", S.specOpen);
+  renderSpec();
+  renderModal();
+}
+
+function toast(msg){
+  const r = document.getElementById("toastRoot");
+  r.innerHTML = `<div class="toast" role="status">${msg}</div>`;
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>{ r.innerHTML = ""; }, 2400);
+}
+
+document.addEventListener("click", e => {
+  const seg = e.target.closest("#viewSeg button");
+  if (seg){ S.view = seg.dataset.view; render(); return; }
+
+  const el = e.target.closest("[data-act]");
+  if (!el) return;
+  if (el.dataset.act === "closeModal" && e.target.closest("[data-stop]")) return;
+
+  const a = el.dataset.act, id = el.dataset.id;
+
+  switch (a){
+    case "go":
+      S.screen = el.dataset.to;
+      if (S.view === "gallery") S.view = "single";
+      break;
+
+    case "toggleInst":
+      S.connected = S.connected.includes(id) ? S.connected.filter(x=>x!==id) : S.connected.concat(id);
+      break;
+
+    case "toggleConsent": S.consents[id] = !S.consents[id]; break;
+
+    case "connect":
+      S.connecting = true; render();
+      setTimeout(()=>{ S.connecting = false; S.screen = "home"; render(); toast("분석을 마쳤어요 · 1.2초"); }, 1500);
+      return;
+
+    case "tab": S.tab = id; break;
+    case "toggleAction": S.actions[id] = !S.actions[id]; break;
+
+    case "apply":
+      S.applied = Object.assign({}, S.actions);
+      S.screen = "result";
+      break;
+
+    // 되돌리기·초기화는 화면에서 결과가 바로 보이므로 토스트를 띄우지 않는다 (silent success)
+    case "undo":
+      S.applied = null; S.actions = DEFAULT_STATE().actions;
+      break;
+
+    case "openFixed":  S.modal = "fixed"; break;
+    case "openReport": S.modal = "report"; break;
+    case "closeModal": S.modal = null; break;
+    case "openSpec":   S.specOpen = true; break;
+    case "closeSpec":  S.specOpen = false; break;
+
+    case "saveFixed": {
+      const n = (document.getElementById("fxName").value || "").trim();
+      const amt = parseInt(document.getElementById("fxAmt").value, 10);
+      const day = parseInt(document.getElementById("fxDay").value, 10);
+      if (!n || !amt || !day || day < 1 || day > 31){
+        toast("이름·금액·날짜(1~31일)를 확인해 주세요"); return;
+      }
+      S.customFixed.push({ id:"fx"+Date.now(), cat:"fixed", name:n, desc:"직접 입력", day, amount:amt, custom:true });
+      S.modal = null;
+      toast("고정비를 반영해 다시 계산했어요");
+      break;
+    }
+
+    case "delFixed":
+      S.customFixed = S.customFixed.filter(f => f.id !== id);
+      break;
+
+    case "sendReport":
+      S.modal = null;
+      toast("신고를 접수했어요 · 운영 검토 예정");
+      break;
+
+    case "disconnect":
+      S.connected = S.connected.filter(x => x !== id);
+      toast("연결을 끊고 데이터를 파기했어요");
+      break;
+
+    case "reset": {
+      const v = S.view;
+      S = DEFAULT_STATE(); S.view = v;
+      break;
+    }
+  }
+  render();
+});
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape"){
+    if (S.modal){ S.modal = null; render(); }
+    else if (S.specOpen){ S.specOpen = false; render(); }
+  }
+});
+
+render();
+</script>
+</body>
+</html>
